@@ -1,7 +1,7 @@
 //Arielle Battle
 //Arielle's game source code
-//Description: my source code contains the function for showing my name and 
-//	       my picture in the main walk2.cpp file
+//Description: my source code contains the function for showing my name, 
+//	       my picture, and the jump function in the main walk2.cpp file
 
 #include "fonts.h"
 #include <GL/glx.h>
@@ -35,4 +35,21 @@ void showAriellePic(int x, int y, GLuint texid)
 	glPopMatrix();
 }
 
+/*void jump (const float gravity, const float timeslice)
+{
+    float positionX, positionY; //position of character
+    float velocityX, 
+    float velocityY = -12.0f; //should make jump same height each jump
+    //float gravity = 0.5f;
+	do
+	{
+	    positionX += velocityX * time; //make h.v. to x position
+	    position += velocirtY * time; //make v.v. to x pos
+	    velocityY += gravity * time; //apply gravity to come back down
+	}while (getchar() != 32 || getchar() != ' ');
+}
 
+void ccollision ()
+{
+	
+}*/

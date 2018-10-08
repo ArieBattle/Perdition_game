@@ -719,6 +719,13 @@ int checkKeys(XEvent *e)
 		case XK_h:
 			gl.helpTab ^= 1;
 			break;	
+		/*case XK_spacebar:
+			gl.jump ^= 1;
+		 	extern void jump();
+		 	void jump();
+			break;
+		*/
+
 	}
 	return 0;
 }
@@ -849,7 +856,7 @@ void render(void)
 	    extern void showTheodoreName(int x, int y);
 	    extern void ShowArielleName(int x, int y);
 	    
-		showFranciscoName(100, gl.yres-155);
+	    showFranciscoName(100, gl.yres-155);
 	    showAnahiName(100, gl.yres-175);
 	    showTheodoreName(100, gl.yres-105);
 	    ShowArielleName(100, gl.yres-135);
