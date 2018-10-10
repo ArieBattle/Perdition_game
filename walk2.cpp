@@ -1066,7 +1066,7 @@ void render(void)
 	ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
 	ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
 	if (gl.movie) {
-		screenCapture();
+		screenCapture(); 
 	}
 }
 
