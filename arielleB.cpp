@@ -35,6 +35,12 @@ void showAriellePic(int x, int y, GLuint texid)
 	glPopMatrix();
 }
 
+/*void menu (int x, int y)
+{
+
+
+}*/
+
 /*void jump (const float gravity, const float timeslice)
 {
     float positionX, positionY; //position of character
@@ -47,9 +53,12 @@ void showAriellePic(int x, int y, GLuint texid)
 	    position += velocirtY * time; //make v.v. to x pos
 	    velocityY += gravity * time; //apply gravity to come back down
 	}while (getchar() != 32 || getchar() != ' ');
-}
+}*/
 
-void ccollision ()
+/*void init_opengl(int x, int y)
+{
+}*/
+/*void ccollision ()
 {
 	
 }*/
