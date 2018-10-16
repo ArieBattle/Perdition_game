@@ -9,7 +9,7 @@
 //framework courtesy: Gordon Giesel
 //
 //This program includes:
-//  multiple sprite-sheet animations
+//  multiple sprite-sheet animations 
 //  a level tiling system
 //  parallax scrolling of backgrounds
 //
