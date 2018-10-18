@@ -12,7 +12,8 @@ void ShowArielleName(int x, int y)
     r.bot = y - 100;
     r.left = x + 280;
     r.center = 1;
-    ggprint8b(&r, 40, 0x00ffff44, "Arielle Battle");
+    ggprint(&r, 40, 0x00ffff44, "Arielle Battle");
+
 }
 
 void showAriellePic(int x, int y, GLuint texid)
@@ -35,11 +36,17 @@ void showAriellePic(int x, int y, GLuint texid)
 	glPopMatrix();
 }
 
-/*void menu (int x, int y)
+void menu (int x, int y)
 {
-
-
-}*/
+	rect r;
+	r.bot = y - 100;
+	r.left = x +260;
+	r.center = 1;
+	ggprint(&r, 40, 0x00ffff44, "PERDITION"); 
+	ggprint(&r, 40, 0x00ffff44, "START");
+	ggprint(&r, 40, 0x00ffff44, "EXIT");
+	ggprint(&r, 40, 0x00ffff44, "CREDITS");	
+}
 
 /*void jump (const float gravity, const float timeslice)
 {
