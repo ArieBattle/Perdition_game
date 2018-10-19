@@ -44,23 +44,23 @@ void menu (int x, int y)
 	
 
 	a.bot = y;
-	a.left = x;
+	a.left = x + 280;
 	a.center = 1;
 
 	b.bot = y - 100;
 	b.left = x + 280;
 	b.center = 1;
 
-	c.bot = y - 200;
-	c.left = x + 380;
+	c.bot = y - 150;
+	c.left = x + 280;
 	c.center = 1;
 
-	d.bot = y - 300;
-	d.left = x + 480;
+	d.bot = y - 200;
+	d.left = x + 280;
 	d.center = 1;
 
 	ggprint8b(&a, 40, 0x00ffff44, "PERDITION");
-	ggprint8b(&b, 40, 0x00ffff44, "START");
+	ggprint8b(&b, 40, 0x00ffff44, "CLICK TO START");
 	ggprint8b(&c, 40, 0x00ffff44, "EXIT");
 	ggprint8b(&d, 40, 0x00ffff44, "CREDITS");
 }

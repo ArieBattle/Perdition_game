@@ -14,6 +14,7 @@
 //  parallax scrolling of backgrounds
 //
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -26,6 +27,7 @@
 //#include "ppm.h"
 #include "fonts.h"
 
+using namespace std;
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -596,14 +598,16 @@ void checkMouse(XEvent *e)
 		return;
 	}
 	if (e->type == ButtonPress) {
+
 		if (e->xbutton.button==1) {
 			//Left button is down
+
 			push_start = true;
 
 		}
 		if (e->xbutton.button==3) {
 			//Right button is down
-			push_start == true;
+			push_start = true;
 
 		}
 	}
@@ -850,16 +854,14 @@ void physics(void)
 
 void render(void)
 {	
-	Rect a;
-	Rect b;
-	Rect c;
-	Rect d;
 
-	void extern menu(int x, int y);
-	void menu(int x, int y);
+	if(!push_start)	{
 
-
-	if(push_start == true) {
+	extern void menu(int x, int y);
+	menu(100, gl.yres-155);
+	
+	} else {
+		cout << push_start;
 		Rect r;
 		//Clear the screen
 		glClearColor(0.1, 0.1, 0.1, 1.0);
