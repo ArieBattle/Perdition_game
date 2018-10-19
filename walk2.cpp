@@ -679,6 +679,7 @@ int checkKeys(XEvent *e)
     switch (key) {
 	case XK_s:
 	    screenCapture();
+	    push_start = true;
 	    break;
 	case XK_m:
 	    gl.movie ^= 1;
@@ -688,11 +689,12 @@ int checkKeys(XEvent *e)
 	    gl.walk ^= 1;
 	    break;
 	case XK_e:
-	    gl.exp.pos[0] = 200.0;
-	    gl.exp.pos[1] = -60.0;
-	    gl.exp.pos[2] =   0.0;
-	    timers.recordTime(&gl.exp.time);
-	    gl.exp.onoff ^= 1;
+	    //gl.exp.pos[0] = 200.0;
+	    //gl.exp.pos[1] = -60.0;
+	    //gl.exp.pos[2] =   0.0;
+	    //timers.recordTime(&gl.exp.time);
+	    //gl.exp.onoff ^= 1;
+	    exit(0);
 	    break;
 	case XK_f:
 	    gl.exp44.pos[0] = 200.0;
@@ -887,7 +889,6 @@ void render(void)
 	    return;
 	}
     } else {
-	cout << push_start;
 	Rect r;
 	//Clear the screen
 	glClearColor(0.1, 0.1, 0.1, 1.0);
@@ -1108,7 +1109,6 @@ void render(void)
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	//ggprint8b(&r, 16, 0x00ffff44, "C    	Credits");
 	ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
 	ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
 	if (gl.movie) {
