@@ -60,9 +60,9 @@ void menu (int x, int y)
 	d.center = 1;
 
 	ggprint8b(&a, 40, 0x00ffff44, "PERDITION");
-	ggprint8b(&b, 40, 0x00ffff44, "CLICK TO START");
-	ggprint8b(&c, 40, 0x00ffff44, "EXIT");
-	ggprint8b(&d, 40, 0x00ffff44, "CREDITS");
+	ggprint8b(&b, 40, 0x00ffff44, "PRESS S TO START");
+	ggprint8b(&c, 40, 0x00ffff44, "PRESS E TO EXIT");
+	ggprint8b(&d, 40, 0x00ffff44, "PRESS C FOR CREDITS");
 }
 
 /*void jump (const float gravity, const float timeslice)
