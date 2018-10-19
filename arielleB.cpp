@@ -5,6 +5,7 @@
 
 #include "fonts.h"
 #include <GL/glx.h>
+#include <cmath>
 
 void ShowArielleName(int x, int y)
 {
