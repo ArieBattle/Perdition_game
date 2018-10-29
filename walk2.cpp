@@ -374,11 +374,11 @@ int main(void)
 	    checkMouse(&e);
 	    done = checkKeys(&e);
 	}
-	if (getchar() == ' ')
+	/*if (getchar() == ' ')
 	{
 	    extern void jump();
 	    jump();
-	}
+	}*/
 	physics();
 	render();
 	x11.swapBuffers();
