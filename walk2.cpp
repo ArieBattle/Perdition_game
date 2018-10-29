@@ -108,7 +108,6 @@ class Global {
 	int xres, yres;
 	int movie, movieStep;
 	int walk;
-	int jump;		//added for jump w/spacebar arielle
 	int credits;
 	int walkFrame;
 	int settings;
@@ -140,7 +139,6 @@ class Global {
 	    xres=800;
 	    yres=600;
 	    walk=0;
-	    jump = 0;		//added  for jump arielle
 	    credits =0;
 	    settings = 0;
 	    walkFrame=0;
@@ -375,6 +373,11 @@ int main(void)
 	    x11.checkResize(&e);
 	    checkMouse(&e);
 	    done = checkKeys(&e);
+	}
+	if (getchar() == ' ')
+	{
+	    extern void jump();
+	    jump();
 	}
 	physics();
 	render();
@@ -689,11 +692,6 @@ int checkKeys(XEvent *e)
 	    gl.walk ^= 1;
 	    break;
 	case XK_e:
-	    //gl.exp.pos[0] = 200.0;
-	    //gl.exp.pos[1] = -60.0;
-	    //gl.exp.pos[2] =   0.0;
-	    //timers.recordTime(&gl.exp.time);
-	    //gl.exp.onoff ^= 1;
 	    exit(0);
 	    break;
 	case XK_f:
@@ -731,13 +729,8 @@ int checkKeys(XEvent *e)
 	case XK_h:
 	    gl.helpTab ^= 1;
 	    break;	
-	case XK_space:
-	    gl.jump ^= 1;
-	    extern void jump();
-	    void jump();
-	    break;
-
-
+	   case XK_space:
+	      break;
     }
     return 0;
 }
@@ -861,7 +854,7 @@ void render(void)
 
 	extern void menu(int x, int y);
 	menu(100, gl.yres-155);
-	
+
 	if (gl.credits) {
 
 	    //display names
