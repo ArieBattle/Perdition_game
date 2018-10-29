@@ -67,7 +67,7 @@ void menu (int x, int y)
     ggprint8b(&d, 40, 0x00ffff44, "PRESS C FOR CREDITS");
 }
 
-void jump (const float gravity, const float timeslice)
+/*void jump (const float gravity, const float timeslice)
 {
     float positionX; //position of character 
     float positionY; //position of character
@@ -80,7 +80,7 @@ void jump (const float gravity, const float timeslice)
 	positionY += velocityY * timeslice; //make v.v. to x pos
 	velocityY += gravity * timeslice; //apply gravity to come back down
     }while (getchar() != 32 || getchar() != ' ');
-}
+}*/
 
 /*void init_opengl(int x, int y)
   {
