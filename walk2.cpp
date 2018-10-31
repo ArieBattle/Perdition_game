@@ -120,6 +120,8 @@ class Global {
 	GLuint animeTexture;
 	GLuint jeremyTexture;
 	GLuint cactusTexture;
+	GLuint enemy1Texture;
+	Gluint goblinTexture;
 	GLuint settings_icon_Texture;
 	Vec box[20];
 	Sprite exp;
@@ -349,7 +351,7 @@ class Image {
 		unlink(ppmname);
 	}
 };
-Image img[9] = {
+Image img[11] = {
     "./images/walk.gif",
     "./images/exp.png",
     "./images/exp44.png",
@@ -358,6 +360,8 @@ Image img[9] = {
     "./images/jeremy.gif",
     "./images/tina.png",
     "./images/cactus.png",
+    "./images/enemy1.png",
+    "./images/goblin.png",
     "./images/settings_icon.png"};
 
 
@@ -374,11 +378,11 @@ int main(void)
 	    checkMouse(&e);
 	    done = checkKeys(&e);
 	}
-	if (getchar() == ' ')
+	/*if (getchar() == ' ')
 	{
 	    extern void jump();
 	    jump();
-	}
+	}*/
 	physics();
 	render();
 	x11.swapBuffers();
@@ -495,9 +499,35 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_cactus, h_cactus, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[7].data);
     //-------------------------------------------------------------------------
-    glGenTextures(1, &gl.settings_icon_Texture);
+    g  glGenTextures(1, &gl.enemy1Texture);
     //-------------------------------------------------------------------------
-    //settings icon texture
+    //enemy1 texture
+    //
+    int w_enemy1 = img[8].width;
+    int h_enemy1 = img[8].height;
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w_enemy1, h_enemy1, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+lGenTextures(1, &gl.settings_icon_Texture);
+    //-------------------------------------------------------------------------
+      glGenTextures(1, &gl.goblinTexture);
+    //-------------------------------------------------------------------------
+    //goblin texture
+    //
+    int w_goblin = img[9].width;
+    int h_goblin = img[9].height;
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.goblinTexture);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w_goblin, h_goblin, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+//settings icon texture
     //
     int w_settings_icon = img[8].width;
     int h_settings_icon  = img[8].height;
@@ -1099,6 +1129,13 @@ void render(void)
 	    glBindTexture(GL_TEXTURE_2D, 0);
 	    glDisable(GL_ALPHA_TEST);
 	}
+
+	//show enemy
+	extern void (int x, int y, Gluint Texid);
+	extern void (int x, int y, Gluint Texid);
+	showGoblin (250, gl.yres-100, gl.goblinTexture);
+	showEnemy1(250, gl.yres-200, gl.enemy1Texture);
+
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
