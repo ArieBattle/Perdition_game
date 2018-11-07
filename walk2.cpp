@@ -121,7 +121,7 @@ class Global {
 	GLuint jeremyTexture;
 	GLuint cactusTexture;
 	GLuint enemy1Texture;
-	Gluint goblinTexture;
+	GLuint goblinTexture;
 	GLuint settings_icon_Texture;
 	Vec box[20];
 	Sprite exp;
@@ -379,10 +379,10 @@ int main(void)
 	    done = checkKeys(&e);
 	}
 	/*if (getchar() == ' ')
-	{
-	    extern void jump();
-	    jump();
-	}*/
+	  {
+	  extern void jump();
+	  jump();
+	  }*/
 	physics();
 	render();
 	x11.swapBuffers();
@@ -499,7 +499,7 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_cactus, h_cactus, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[7].data);
     //-------------------------------------------------------------------------
-    g  glGenTextures(1, &gl.enemy1Texture);
+    glGenTextures(1, &gl.enemy1Texture);
     //-------------------------------------------------------------------------
     //enemy1 texture
     //
@@ -512,9 +512,9 @@ void initOpengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_enemy1, h_enemy1, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
-lGenTextures(1, &gl.settings_icon_Texture);
+    glGenTextures(1, &gl.settings_icon_Texture);
     //-------------------------------------------------------------------------
-      glGenTextures(1, &gl.goblinTexture);
+    glGenTextures(1, &gl.goblinTexture);
     //-------------------------------------------------------------------------
     //goblin texture
     //
@@ -527,7 +527,7 @@ lGenTextures(1, &gl.settings_icon_Texture);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_goblin, h_goblin, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
-//settings icon texture
+    //settings icon texture
     //
     int w_settings_icon = img[8].width;
     int h_settings_icon  = img[8].height;
@@ -759,8 +759,8 @@ int checkKeys(XEvent *e)
 	case XK_h:
 	    gl.helpTab ^= 1;
 	    break;	
-	   case XK_space:
-	      break;
+	case XK_space:
+	    break;
     }
     return 0;
 }
@@ -1131,10 +1131,10 @@ void render(void)
 	}
 
 	//show enemy
-	extern void (int x, int y, Gluint Texid);
-	extern void (int x, int y, Gluint Texid);
-	showGoblin (250, gl.yres-100, gl.goblinTexture);
-	showEnemy1(250, gl.yres-200, gl.enemy1Texture);
+	extern void showGoblin(int x, int y, GLuint Texid);
+	extern void showEnemy1(int x, int y, GLuint Texid);
+	showGoblin (250, 0, gl.goblinTexture);
+	showEnemy1(0, gl.yres-0, gl.enemy1Texture);
 
 	r.bot = gl.yres - 20;
 	r.left = 10;

@@ -37,42 +37,42 @@ void showAriellePic(int x, int y, GLuint texid)
     glPopMatrix();
 }
 
-void showEnemy1(int x, int y, Gluint texid)
+void showEnemy1(int x, int y, GLuint texid)
 {
-    static float angle = 0.0f;
+    //static float angle = 0.0f;
 
     glColor3ub(255, 255, 255);
     int width = 20;
     glPushMatrix();
-    glTranslated(x, y, 0);
-    //glRotatef(angle2, 0.0f, 0.0f, 1.0f);	//rotates the picture
+    glTranslated(1, y, 0);
+    //glRotatef(1.0f, 0.0f, 0.0f);	//rotates the picture
     //angle2 += 1;	//the speed of the picture
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid, -wid);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(wid, wid);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(wid, -wid);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(-width, -width);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(-width, width);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(-width, -width);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
     glEnd();
     glPopMatrix();
 }
 
-void showGoblin(int x, int y, Gluint texid)
+void showGoblin(int x, int y, GLuint texid)
 {
-    static float angle = 0.0f;
+    //static float angle = 0.0f;
 
     glColor3ub(255, 255, 255);
-    int width = 20;
+    int width2 = 20;
     glPushMatrix();
-    glTranslated(x, y, 0);
+    glTranslated(1, y, 0);
     //glRotatef(angle2, 0.0f, 0.0f, 1.0f);	//rotates the picture
     //angle2 += 1;	//the speed of the picture
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid, -wid);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(wid, wid);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(wid, -wid);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(-width2, -width2);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(-width2, width2);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(width2, width2);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(width2, -width2);
     glEnd();
     glPopMatrix();
 }
