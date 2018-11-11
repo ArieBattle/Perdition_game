@@ -39,24 +39,24 @@ void showAriellePic(int x, int y, GLuint texid)
 
 void showEnemy1(int x, int y, GLuint texid)
 {
-    //static float angle = 0.0f;
+   // static float angle = 0.0f;
 
     glColor3ub(255, 255, 255);
-    int width = 20;
+    int width = 25;
     glPushMatrix();
-    glTranslated(1, y, 0);
-    //glRotatef(1.0f, 0.0f, 0.0f);	//rotates the picture
-    //angle2 += 1;	//the speed of the picture
+    glTranslated(x, y, 0);
+    glTranslatef(-0.5f, -0.5f, 0.0f);	//rotates the picture
+    //angle += 1;	//the speed of the picture
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 1.0f); glVertex2i(-width, -width);
     glTexCoord2f(0.0f, 0.0f); glVertex2i(-width, width);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(-width, -width);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(width, width);
     glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
     glEnd();
     glPopMatrix();
 }
-
+/*
 void showGoblin(int x, int y, GLuint texid)
 {
     //static float angle = 0.0f;
@@ -64,7 +64,7 @@ void showGoblin(int x, int y, GLuint texid)
     glColor3ub(255, 255, 255);
     int width2 = 20;
     glPushMatrix();
-    glTranslated(1, y, 0);
+    glTranslated(x, y, 0);
     //glRotatef(angle2, 0.0f, 0.0f, 1.0f);	//rotates the picture
     //angle2 += 1;	//the speed of the picture
     glBindTexture(GL_TEXTURE_2D, texid);
@@ -76,7 +76,7 @@ void showGoblin(int x, int y, GLuint texid)
     glEnd();
     glPopMatrix();
 }
-
+*/
 void menu (int x, int y)
 {
     Rect a;

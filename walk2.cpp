@@ -511,7 +511,7 @@ void initOpengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_enemy1, h_enemy1, 0,
-	    GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+	    GL_RGB, GL_UNSIGNED_BYTE, img[8].data);
     glGenTextures(1, &gl.settings_icon_Texture);
     //-------------------------------------------------------------------------
     glGenTextures(1, &gl.goblinTexture);
@@ -526,18 +526,18 @@ void initOpengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_goblin, h_goblin, 0,
-	    GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+	    GL_RGB, GL_UNSIGNED_BYTE, img[9].data);
     //settings icon texture
     //
-    int w_settings_icon = img[8].width;
-    int h_settings_icon  = img[8].height;
+    int w_settings_icon = img[10].width;
+    int h_settings_icon  = img[10].height;
     //
     glBindTexture(GL_TEXTURE_2D, gl.settings_icon_Texture);
     //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_settings_icon, h_settings_icon, 0,
-	    GL_RGB, GL_UNSIGNED_BYTE, img[8].data);
+	    GL_RGB, GL_UNSIGNED_BYTE, img[10].data);
     //-------------------------------------------------------------------------
 
     glViewport(0, 0, gl.xres, gl.yres);
@@ -1131,10 +1131,8 @@ void render(void)
 	}
 
 	//show enemy
-	extern void showGoblin(int x, int y, GLuint Texid);
 	extern void showEnemy1(int x, int y, GLuint Texid);
-	showGoblin (250, 0, gl.goblinTexture);
-	showEnemy1(0, gl.yres-0, gl.enemy1Texture);
+	showEnemy1(700, 240, gl.enemy1Texture);
 
 	r.bot = gl.yres - 20;
 	r.left = 10;
