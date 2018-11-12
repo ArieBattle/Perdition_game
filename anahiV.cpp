@@ -1,11 +1,10 @@
 // author: Anahi Vargas
-// date: 10/7/2018
+// date: 11/11/2018
 
 /*** INCLUDE ***/
 #include "fonts.h"
 #include "log.h"
 #include <GL/glx.h>
-#include <X11/Xlib.h> // probably dont need this anymore
 #include <string.h>
 #include <map>
 
@@ -17,8 +16,6 @@
 /*** CONSTANTS ***/
 const char *BUTTON_TEXT[] = { "Play", "Options", "Quit", NULL };
 
-
-// i wanna throw these types into something called globalTypes.h
 /*** TYPES ***/
 typedef struct t_button {
     // we can also store functions pointers in here
@@ -47,6 +44,7 @@ typedef struct t_mouse {
 /*** FUNCTION PROTOTYPES ***/
 void checkButtons(Mouse);
 void initMenuButtons();
+
 /*** CLASSES ***/
 namespace anahi {
     class Global {
@@ -63,7 +61,7 @@ namespace anahi {
     } g;
 }
 
-void initMenuButtons() // i think its better to send an init button construct like a hash table or objects or something
+void initMenuButtons() 
 {   
     Rect rec;
     Button newButton;
@@ -259,21 +257,24 @@ void showMenu(const Mouse mouse)
     }
 }
 
+//play button will go here
 void play()
 {
 
 }
 
+//settings button will go here
 void settings()
 {
 
 }
 
+//quit button will go here
 void quit()
 {
 
 }
-#define VERBOSE
+
 //checks if mouse cursor is over a button
 void checkButtons(Mouse mouse) 
 {
@@ -291,8 +292,6 @@ void checkButtons(Mouse mouse)
             Log("button id: %d, down: %d, over: %d", 
                 anahi::g.buttons[i].id, anahi::g.buttons[i].down, anahi::g.buttons[i].over);
             #endif
-        } // else if cursor up inside button then click = 1;
-    }
-
-   // if left button is down, go ahead and render whatever the button correlates to        
+        }
+    }    
 }
