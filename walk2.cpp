@@ -49,7 +49,14 @@ const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define ALPHA 1
 
-//function prototypes
+typedef struct t_mouse {
+    int eventType;
+    int lbutton;
+    int rbutton;
+    int x;
+    int y;
+} Mouse;
+
 bool push_start = false;
 void initOpengl();
 void checkMouse(XEvent *e);
@@ -112,6 +119,7 @@ class Global {
 	int walkFrame;
 	int settings;
 	int helpTab;
+    int menu;
 	double delay;
 	Image *walkImage;
 	GLuint walkTexture;
@@ -130,6 +138,7 @@ class Global {
 	Vec ball_vel;
 	//camera is centered at (0,0) lower-left of screen. 
 	Flt camera[2];
+    Mouse mouse;
 	~Global() {
 	    logClose();
 	}
@@ -144,6 +153,7 @@ class Global {
 	    credits =0;
 	    settings = 0;
 	    walkFrame=0;
+        menu = 1;   // start off with menu
 	    walkImage=NULL;
 	    MakeVector(ball_pos, 520.0, 0, 0);
 	    MakeVector(ball_vel, 0, 0, 0);
@@ -157,9 +167,9 @@ class Global {
 	    exp44.image=NULL;
 	    exp44.delay = 0.022;
 	    for (int i=0; i<20; i++) {
-		box[i][0] = rnd() * xres;
-		box[i][1] = rnd() * (yres-220) + 220.0;
-		box[i][2] = 0.0;
+            box[i][0] = rnd() * xres;
+            box[i][1] = rnd() * (yres-220) + 220.0;
+            box[i][2] = 0.0;
 	    }
 	    memset(keys, 0, 65536);
 	    //
@@ -624,32 +634,46 @@ void checkMouse(XEvent *e)
     static int savex = 0;
     static int savey = 0;
     //
+    //just kuz
+    Log("e->type: %d\n", e->type);
+    Log("buttonrelease: %d, buttonpress: %d, MotionNotify: %d\n", ButtonRelease, ButtonPress, MotionNotify);
     if (e->type != ButtonRelease && e->type != ButtonPress &&
 	    e->type != MotionNotify)
-	return;
+        return;
     if (e->type == ButtonRelease) {
-	return;
+        if (e->xbutton.button == 1) {
+            //Left button is down
+            gl.mouse.lbutton = 0;
+        }
+        if (e->xbutton.button == 3) {
+            //Right button is down
+            gl.mouse.rbutton = 0;
+        }
+        return;
     }
     if (e->type == ButtonPress) {
 
-	if (e->xbutton.button==1) {
-	    //Left button is down
+        if (e->xbutton.button==1) {
+            //Left button is down
+            gl.mouse.lbutton = 1;
+            push_start = true;
 
-	    push_start = true;
+        }
+        if (e->xbutton.button==3) {
+            //Right button is down
+            gl.mouse.rbutton = 1;
+            push_start = true;
 
-	}
-	if (e->xbutton.button==3) {
-	    //Right button is down
-	    push_start = true;
-
-	}
+        }
     }
     if (e->type == MotionNotify) {
-	if (savex != e->xbutton.x || savey != e->xbutton.y) {
-	    //Mouse moved
-	    savex = e->xbutton.x;
-	    savey = e->xbutton.y;
-	}
+        if (savex != e->xbutton.x || savey != e->xbutton.y) {
+            //Mouse moved
+            savex = e->xbutton.x;
+            savey = e->xbutton.y;
+            gl.mouse.x = e->xbutton.x;
+            gl.mouse.y = e->xbutton.y;
+        }
     }
 }
 
@@ -879,7 +903,10 @@ void physics(void)
 
 void render(void)
 {	
-
+    if (gl.menu) {
+        extern void showMenu(Mouse);
+        showMenu(gl.mouse);
+    }
     if(!push_start)	{
 
 	extern void menu(int x, int y);
