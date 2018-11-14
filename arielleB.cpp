@@ -8,6 +8,14 @@
 #include <cmath>
 #include <cstdio>
 
+//create list and have random enemy chosen witin the list
+int RandomEnem = {enem1, enem2};
+int enemy = random.choice(RandomEnem);
+
+//have the function equal something to the list to be randomly called
+enem1 = showEnemy1();
+enem2 = showGoblin();
+
 void ShowArielleName(int x, int y)
 {
     Rect r;
@@ -45,7 +53,7 @@ void showEnemy1(int x, int y, GLuint texid)
     int width = 25;
     glPushMatrix();
     glTranslated(x, y, 0);
-    glTranslatef(-0.5f, -0.5f, 0.0f);	//rotates the picture
+    //glTranslatef(-0.5f, -0.5f, 0.0f);	//rotates the picture
     //angle += 1;	//the speed of the picture
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
@@ -56,13 +64,13 @@ void showEnemy1(int x, int y, GLuint texid)
     glEnd();
     glPopMatrix();
 }
-/*
+
 void showGoblin(int x, int y, GLuint texid)
 {
     //static float angle = 0.0f;
 
     glColor3ub(255, 255, 255);
-    int width2 = 20;
+    int width2 = 205;
     glPushMatrix();
     glTranslated(x, y, 0);
     //glRotatef(angle2, 0.0f, 0.0f, 1.0f);	//rotates the picture
@@ -76,7 +84,7 @@ void showGoblin(int x, int y, GLuint texid)
     glEnd();
     glPopMatrix();
 }
-*/
+
 void menu (int x, int y)
 {
     Rect a;

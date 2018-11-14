@@ -1134,6 +1134,9 @@ void render(void)
 	extern void showEnemy1(int x, int y, GLuint Texid);
 	showEnemy1(700, 240, gl.enemy1Texture);
 
+	extern void showGoblin(int x, int y, GLuint Texid);
+	showEnemy1(800, 240, gl.enemy1Texture);
+
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
