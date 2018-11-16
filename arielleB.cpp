@@ -9,13 +9,13 @@
 #include <cstdio>
 
 //create list and have random enemy chosen witin the list
-int RandomEnem = {enem1, enem2};
+/*int RandomEnem = {enem1, enem2};
 int enemy = random.choice(RandomEnem);
 
 //have the function equal something to the list to be randomly called
 enem1 = showEnemy1();
 enem2 = showGoblin();
-
+*/
 void ShowArielleName(int x, int y)
 {
     Rect r;
@@ -63,6 +63,25 @@ void showEnemy1(int x, int y, GLuint texid)
     glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
     glEnd();
     glPopMatrix();
+}
+
+void moveEnemy1(GLuint texit) {
+    //make enemy move?
+    int addgrav = 1;
+    //update position
+    enemy1.pos[0] += enemy1.vel[0];
+    enemy1.pos[1] += enemy1.vel[1];
+    //check for collision with window edges
+    if((enemy1.pos[0] < -140.0 && enemy1.vel[0] < 0.0) ||
+	(enemy1.pos[0] >= (float)g.xres+140.0 &&
+	 enemy1.vel[0] > 0.0))
+    {
+	enemy.vel[0] = -enemy1.vel[0];
+	addgrav;
+    }
+    //gravity
+    if (addgrav)
+	enemy1.vel[1] -= 0.75;
 }
 
 void showGoblin(int x, int y, GLuint texid)

@@ -875,6 +875,10 @@ void physics(void)
 	gl.ball_vel[1] -= 0.9;
     }
     gl.ball_pos[1] += gl.ball_vel[1];
+
+    //have enemy1 move
+    extern void moveEnemy1(gl.enemy1Texture);
+    moveEnemy(gl.Texture);
 }
 
 void render(void)
@@ -1131,11 +1135,18 @@ void render(void)
 	}
 
 	//show enemy
+	
 	extern void showEnemy1(int x, int y, GLuint Texid);
-	showEnemy1(700, 240, gl.enemy1Texture);
+	//showEnemy1(700, 240, gl.enemy1Texture);
 
 	extern void showGoblin(int x, int y, GLuint Texid);
-	showEnemy1(800, 240, gl.enemy1Texture);
+	//showGoblin(800, 240, gl.goblinTexture);
+	
+	int randomEnem = {enem1, enem2};
+	int enem1 = showEnemy1(700, 240, gl.enemy1Texture);
+	int enem2 = showGoblin(800, 240, gl.goblinTexture);
+
+	random.choice(RandomEnem);
 
 	r.bot = gl.yres - 20;
 	r.left = 10;
