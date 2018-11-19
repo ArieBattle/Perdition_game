@@ -16,6 +16,15 @@ int enemy = random.choice(RandomEnem);
 enem1 = showEnemy1();
 enem2 = showGoblin();
 */
+
+typedef double Vec[3];
+
+class Enemy1 {
+    public: 
+	Vec pos;
+	Vec vel;
+} enemy1;
+
 void ShowArielleName(int x, int y)
 {
     Rect r;
@@ -66,6 +75,8 @@ void showEnemy1(int x, int y, GLuint texid)
 }
 
 void moveEnemy1(GLuint texit) {
+
+    int xres, yres;
     //make enemy move?
     int addgrav = 1;
     //update position
@@ -76,7 +87,7 @@ void moveEnemy1(GLuint texit) {
 	(enemy1.pos[0] >= (float)g.xres+140.0 &&
 	 enemy1.vel[0] > 0.0))
     {
-	enemy.vel[0] = -enemy1.vel[0];
+	enemy1.vel[0] = -enemy1.vel[0];
 	addgrav;
     }
     //gravity
