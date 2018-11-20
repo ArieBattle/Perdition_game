@@ -782,7 +782,10 @@ int checkKeys(XEvent *e)
 	    break;
 	case XK_h:
 	    gl.helpTab ^= 1;
-	    break;	
+	    break;
+        case XK_n:
+            extern void sound_test();
+	    break;
 	case XK_space:
 	    break;
     }
@@ -1167,6 +1170,7 @@ void render(void)
 	ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
 	ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
 	ggprint8b(&r, 16, 0x00ffff44, "E	Exit");
+	ggprint8b(&r, 16, 0x00ffff44, "N        Sound Test");
 	if (gl.movie) {
 	    screenCapture();
 	}
