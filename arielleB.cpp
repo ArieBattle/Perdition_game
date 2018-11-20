@@ -68,7 +68,8 @@ void showEnemy1(int x, int y, GLuint texid)
 }
 
 /*
-   void moveEnemy1(GLuint texid) {
+   void moveEnemy1(GLuint texid) 
+   {
 
    int xres, yres;
 //make enemy move?
@@ -111,7 +112,7 @@ void showGoblin(int x, int y, GLuint texid)
     glPopMatrix();
 }
 
-void menu (int x, int y)
+void menu (int x, int y, GLuint texid)
 {
     Rect a;
     Rect b;
@@ -133,6 +134,19 @@ void menu (int x, int y)
     d.bot = y - 200;
     d.left = x + 280;
     d.center = 1;
+
+    glColor3ub(255, 255, 255);
+    int wid;
+    glPushMatrix();
+    glTranslated(x, y, 0);
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid, -wid);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(wid, wid);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(wid, -wid);
+    glEnd();
+    glPopMatrix();
 
     ggprint8b(&a, 40, 0x00ffff44, "PERDITION");
     ggprint8b(&b, 40, 0x00ffff44, "PRESS S TO START");

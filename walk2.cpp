@@ -556,7 +556,7 @@ void initOpengl(void)
     //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, w_settings_icon, h_settings_icon, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w_p, h_p, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[11].data);
     //-------------------------------------------------------------------------
     glViewport(0, 0, gl.xres, gl.yres);
@@ -895,17 +895,18 @@ void physics(void)
     }
     gl.ball_pos[1] += gl.ball_vel[1];
 
+    /*
     if (key == XK_space) {
 	extern void jump(GLuint texid);
 	jump(gl.walkTexture);
-    }
+    }*/
 
 }
 
 void moveEnemy1() {
 
     extern void showEnemy1(int x, int y, GLuint texid);
-    showEnemy1(700, 240. gl.enemy1Txture);
+    showEnemy1(700, 240, gl.enemy1Texture);
 
     int xres, yres;
     //make enemy move?
