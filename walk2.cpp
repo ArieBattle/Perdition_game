@@ -122,6 +122,7 @@ class Global {
 	GLuint cactusTexture;
 	GLuint enemy1Texture;
 	GLuint goblinTexture;
+	GLuint perditionTexture;
 	GLuint settings_icon_Texture;
 	Vec box[20];
 	Sprite exp;
@@ -357,7 +358,7 @@ class Image {
 		unlink(ppmname);
 	}
 };
-Image img[11] = {
+Image img[12] = {
     "./images/walk.gif",
     "./images/exp.png",
     "./images/exp44.png",
@@ -368,7 +369,8 @@ Image img[11] = {
     "./images/cactus.png",
     "./images/enemy1.png",
     "./images/goblin.png",
-    "./images/settings_icon.png"};
+    "./images/settings_icon.png",
+    ".images/perdition.png"};
 
 
 int main(void)
@@ -545,7 +547,18 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_settings_icon, h_settings_icon, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[10].data);
     //-------------------------------------------------------------------------
-
+ //perdition menu 
+    //
+    int w_p = img[11].width;
+    int h_p = img[11].height;
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.settings_icon_Texture);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, w_settings_icon, h_settings_icon, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, img[11].data);
+    //-------------------------------------------------------------------------
     glViewport(0, 0, gl.xres, gl.yres);
     //Initialize matrices
     glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -982,8 +995,6 @@ void render(void)
 	    showHelp(50, gl.yres-60);
 	    return;
 	}
-
-
 
 	float cx = gl.xres/2.0;
 	float cy = gl.yres/2.0;
