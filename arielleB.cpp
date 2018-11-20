@@ -146,36 +146,34 @@ void menu (int x, int y, GLuint texid)
     ggprint8b(&d, 40, 0x00ffff44, "PRESS C FOR CREDITS");
 
     glColor3ub(255, 255, 255);
-    int width;
+    int wid;
     glPushMatrix();
     glTranslated(x, y, 0);
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i(-width, -width);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i(-width, width);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(width, width);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid, -wid);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(wid, wid);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(wid, -wid);
     glEnd();
     glPopMatrix();
 
 }
 
-void jump (const float gravity, const float timeslice, GLuint texid)
+void jump (GLuint texid)
 {
     float positionX; //position of character 
     float positionY; //position of character
     float velocityX; 
     float velocityY = -12.0f; //should make jump same height each jump
-    //float gravity = 0.5f;
-    do
-    {
+    const float gravity = 0.5f;
+    const float timesplice = 1.0f;
 	positionX += velocityX * timeslice; //make h.v. to x position
-positionY += velocityY * timeslice; //make v.v. to x pos
+	positionY += velocityY * timeslice; //make v.v. to x pos
 	velocityY += gravity * timeslice; //apply gravity to come back down
-    }while (getchar() != 32 || getchar() != ' ');
 }
 
-/*void ccollision ()
+void ccollision ()
   {
 
-  }*/
+  }
