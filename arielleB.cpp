@@ -8,22 +8,15 @@
 #include <cmath>
 #include <cstdio>
 
-//create list and have random enemy chosen witin the list
-/*int RandomEnem = {enem1, enem2};
-int enemy = random.choice(RandomEnem);
+/*
+   typedef double Vec[3];
 
-//have the function equal something to the list to be randomly called
-enem1 = showEnemy1();
-enem2 = showGoblin();
-*/
-
-typedef double Vec[3];
-
-class Enemy1 {
-    public: 
-	Vec pos;
-	Vec vel;
-} enemy1;
+   class Enemy1 {
+   public: 
+   Vec pos;
+   Vec vel;
+   } enemy1;
+   */
 
 void ShowArielleName(int x, int y)
 {
@@ -56,7 +49,7 @@ void showAriellePic(int x, int y, GLuint texid)
 
 void showEnemy1(int x, int y, GLuint texid)
 {
-   // static float angle = 0.0f;
+    // static float angle = 0.0f;
 
     glColor3ub(255, 255, 255);
     int width = 25;
@@ -74,26 +67,29 @@ void showEnemy1(int x, int y, GLuint texid)
     glPopMatrix();
 }
 
-void moveEnemy1(GLuint texit) {
+/*
+   void moveEnemy1(GLuint texid) {
 
-    int xres, yres;
-    //make enemy move?
-    int addgrav = 1;
-    //update position
-    enemy1.pos[0] += enemy1.vel[0];
-    enemy1.pos[1] += enemy1.vel[1];
-    //check for collision with window edges
-    if((enemy1.pos[0] < -140.0 && enemy1.vel[0] < 0.0) ||
-	(enemy1.pos[0] >= (float)g.xres+140.0 &&
-	 enemy1.vel[0] > 0.0))
-    {
-	enemy1.vel[0] = -enemy1.vel[0];
-	addgrav;
-    }
-    //gravity
-    if (addgrav)
-	enemy1.vel[1] -= 0.75;
+   int xres, yres;
+//make enemy move?
+int addgrav = 1;
+//update position
+enemy1.pos[0] += enemy1.vel[0];
+enemy1.pos[1] += enemy1.vel[1];
+
+
+//check for collision with window edges
+if((enemy1.pos[0] < -140.0 && enemy1.vel[0] < 0.0) ||
+(enemy1.pos[0] >= (float)g.xres+140.0 &&
+enemy1.vel[0] > 0.0))
+{
+enemy1.vel[0] = -enemy1.vel[0];
+addgrav;
 }
+//gravity
+if (addgrav)
+enemy1.vel[1] -= 0.75;
+}*/
 
 void showGoblin(int x, int y, GLuint texid)
 {
@@ -122,7 +118,6 @@ void menu (int x, int y)
     Rect c;
     Rect d;
 
-
     a.bot = y;
     a.left = x + 280;
     a.center = 1;
@@ -145,24 +140,22 @@ void menu (int x, int y)
     ggprint8b(&d, 40, 0x00ffff44, "PRESS C FOR CREDITS");
 }
 
-/*void jump (const float gravity, const float timeslice)
-  {
-  float positionX; //position of character 
-  float positionY; //position of character
-  float velocityX; 
-  float velocityY = -12.0f; //should make jump same height each jump
-//float gravity = 0.5f;
-do
+void jump (/*const float gravity, const float timeslice,*/ GLuint texid)
 {
-positionX += velocityX * timeslice; //make h.v. to x position
-positionY += velocityY * timeslice; //make v.v. to x pos
-velocityY += gravity * timeslice; //apply gravity to come back down
-}while (getchar() != 32 || getchar() != ' ');
-}*/
+    float positionX; //position of character 
+    float positionY; //position of character
+    float velocityX; 
+    float velocityY = -12.0f; //should make jump same height each jump
+    float gravity = 0.5f;
+    const float timeslice = 1.0f;
+    //do
+    //{
+	positionX += velocityX * timeslice; //make h.v. to x position
+	positionY += velocityY * timeslice; //make v.v. to x pos
+	velocityY += gravity * timeslice; //apply gravity to come back down
+    //}while (getchar() != 32 || getchar() != ' ');
+}
 
-/*void init_opengl(int x, int y)
-  {
-  }*/
 /*void ccollision ()
   {
 

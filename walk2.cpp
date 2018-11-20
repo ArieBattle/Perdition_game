@@ -166,6 +166,12 @@ class Global {
 	}
 } gl;
 
+class Enemy1 {
+    public:
+	Vec pos;
+	Vec vel;
+} enemy1;
+
 class Level {
     public:
 	unsigned char arr[16][80];
@@ -876,9 +882,43 @@ void physics(void)
     }
     gl.ball_pos[1] += gl.ball_vel[1];
 
-    //have enemy1 move
-    extern void moveEnemy1(GLuint);
-    moveEnemy(gl.enemy1Texture);
+    if (key == XK_space) {
+	extern void jump(GLuint texid);
+	jump(gl.walkTexture);
+    }
+
+}
+
+void moveEnemy1() {
+
+    extern void showEnemy1(int x, int y, GLuint texid);
+    showEnemy1(700, 240. gl.enemy1Txture);
+
+    int xres, yres;
+    //make enemy move?
+    int addgrav = 1;
+    //update position
+    enemy1.pos[0] += enemy1.vel[0];
+    enemy1.pos[1] += enemy1.vel[1];
+
+    //check for collision with window edges
+    if((enemy1.pos[0] < -140.0 && enemy1.vel[0] < 0.0) ||
+	    (enemy1.pos[0] >= (float)xres+140.0 &&
+	     enemy1.vel[0] > 0.0))
+    {
+	enemy1.vel[0] = -enemy1.vel[0];
+	addgrav = 0;
+    }    
+
+    if ((enemy1.pos[1] < 150.0 && enemy1.vel[1] < 0.0) ||
+	    (enemy1.pos[1] >= (float)yres && enemy1.vel[1] > 0.0)) {
+	enemy1.vel[1] = -enemy1.vel[1];
+	addgrav = 0;
+    }
+
+    //gravity
+    if (addgrav)
+	enemy1.vel[1] -= 0.75;
 }
 
 void render(void)
@@ -1135,19 +1175,16 @@ void render(void)
 	}
 
 	//show enemy
-	
-	extern void showEnemy1(int x, int y, GLuint Texid);
+	/*	
+		extern void showEnemy1(int x, int y, GLuint Texid);
 	//showEnemy1(700, 240, gl.enemy1Texture);
 
 	extern void showGoblin(int x, int y, GLuint Texid);
 	//showGoblin(800, 240, gl.goblinTexture);
-/*	
-	int randomEnem = {enem1, enem2};
-	int enem1 = showEnemy1(700, 240, gl.enemy1Texture);
-	int enem2 = showGoblin(800, 240, gl.goblinTexture);
+
 
 	random.choice(RandomEnem);
-*/
+	*/
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
