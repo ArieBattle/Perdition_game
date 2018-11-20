@@ -8,15 +8,22 @@
 #include <cmath>
 #include <cstdio>
 
-/*
-   typedef double Vec[3];
+//create list and have random enemy chosen witin the list
+/*int RandomEnem = {enem1, enem2};
+  int enemy = random.choice(RandomEnem);
 
-   class Enemy1 {
-   public: 
-   Vec pos;
-   Vec vel;
-   } enemy1;
-   */
+//have the function equal something to the list to be randomly called
+enem1 = showEnemy1();
+enem2 = showGoblin();
+*/
+
+typedef double Vec[3];
+
+class Enemy1 {
+    public: 
+	Vec pos;
+	Vec vel;
+} enemy1;
 
 void ShowArielleName(int x, int y)
 {
@@ -65,32 +72,30 @@ void showEnemy1(int x, int y, GLuint texid)
     glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
     glEnd();
     glPopMatrix();
+
+    //moveEnemy1();
 }
 
-/*
-   void moveEnemy1(GLuint texid) 
-   {
+void moveEnemy1(GLuint texid) {
 
-   int xres, yres;
-//make enemy move?
-int addgrav = 1;
-//update position
-enemy1.pos[0] += enemy1.vel[0];
-enemy1.pos[1] += enemy1.vel[1];
-
-
-//check for collision with window edges
-if((enemy1.pos[0] < -140.0 && enemy1.vel[0] < 0.0) ||
-(enemy1.pos[0] >= (float)g.xres+140.0 &&
-enemy1.vel[0] > 0.0))
-{
-enemy1.vel[0] = -enemy1.vel[0];
-addgrav;
+    int xres, yres;
+    //make enemy move?
+    int addgrav = 1;
+    //update position
+    enemy1.pos[0] += enemy1.vel[0];
+    enemy1.pos[1] += enemy1.vel[1];
+    /*    //check for collision with window edges
+	  if((enemy1.pos[0] < -140.0 && enemy1.vel[0] < 0.0) ||
+	  (enemy1.pos[0] >= (float)g.xres+140.0 &&
+	  enemy1.vel[0] > 0.0))
+	  {
+	  enemy1.vel[0] = -enemy1.vel[0];
+	  addgrav;
+	  }*/
+    //gravity
+    if (addgrav)
+	enemy1.vel[1] -= 0.75;
 }
-//gravity
-if (addgrav)
-enemy1.vel[1] -= 0.75;
-}*/
 
 void showGoblin(int x, int y, GLuint texid)
 {
@@ -135,39 +140,39 @@ void menu (int x, int y, GLuint texid)
     d.left = x + 280;
     d.center = 1;
 
-    glColor3ub(255, 255, 255);
-    int wid;
-    glPushMatrix();
-    glTranslated(x, y, 0);
-    glBindTexture(GL_TEXTURE_2D, texid);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid, -wid);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(wid, wid);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(wid, -wid);
-    glEnd();
-    glPopMatrix();
-
     ggprint8b(&a, 40, 0x00ffff44, "PERDITION");
     ggprint8b(&b, 40, 0x00ffff44, "PRESS S TO START");
     ggprint8b(&c, 40, 0x00ffff44, "PRESS E TO EXIT");
     ggprint8b(&d, 40, 0x00ffff44, "PRESS C FOR CREDITS");
+
+    glColor3ub(255, 255, 255);
+    int width;
+    glPushMatrix();
+    glTranslated(x, y, 0);
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(-width, -width);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(-width, width);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(width, width);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
+    glEnd();
+    glPopMatrix();
+
 }
 
-void jump (/*const float gravity, const float timeslice,*/ GLuint texid)
+void jump (const float gravity, const float timeslice, GLuint texid)
 {
     float positionX; //position of character 
     float positionY; //position of character
     float velocityX; 
     float velocityY = -12.0f; //should make jump same height each jump
-    float gravity = 0.5f;
-    const float timeslice = 1.0f;
-    //do
-    //{
+    //float gravity = 0.5f;
+    do
+    {
 	positionX += velocityX * timeslice; //make h.v. to x position
-	positionY += velocityY * timeslice; //make v.v. to x pos
+positionY += velocityY * timeslice; //make v.v. to x pos
 	velocityY += gravity * timeslice; //apply gravity to come back down
-    //}while (getchar() != 32 || getchar() != ' ');
+    }while (getchar() != 32 || getchar() != ' ');
 }
 
 /*void ccollision ()

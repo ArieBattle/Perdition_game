@@ -112,6 +112,7 @@ class Global {
 	int walkFrame;
 	int settings;
 	int helpTab;
+	int showRain;
 	double delay;
 	Image *walkImage;
 	GLuint walkTexture;
@@ -122,8 +123,8 @@ class Global {
 	GLuint cactusTexture;
 	GLuint enemy1Texture;
 	GLuint goblinTexture;
-	GLuint perditionTexture;
 	GLuint settings_icon_Texture;
+	GLuint perditionTexture;
 	Vec box[20];
 	Sprite exp;
 	Sprite exp44;
@@ -136,6 +137,7 @@ class Global {
 	}
 	Global() {
 	    logOpen();
+	    showRain = 0;
 	    camera[0] = camera[1] = 0.0;
 	    movie=0;
 	    movieStep=2;
@@ -167,11 +169,26 @@ class Global {
 	}
 } gl;
 
-class Enemy1 {
+class Raindrop {
     public:
+	int type;
+	int linewidth;
+	int sound;
 	Vec pos;
+	Vec lastpos;
 	Vec vel;
-} enemy1;
+	Vec maxvel;
+	Vec force;
+	float length;
+	float color[4];
+	Raindrop *prev;
+	Raindrop *next;
+} *rainhad = NULL;
+int ndrops = 1;
+int totrain = 0;
+int maxrain = 0;
+void deleteRain(Raindrop *node);
+void cleanupRaindrops(void);
 
 class Level {
     public:
@@ -370,7 +387,7 @@ Image img[12] = {
     "./images/enemy1.png",
     "./images/goblin.png",
     "./images/settings_icon.png",
-    ".images/perdition.png"};
+    "./images/perdition.png"};
 
 
 int main(void)
@@ -447,6 +464,8 @@ void initOpengl(void)
 	    GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
     //-------------------------------------------------------------------------
     //
+    
+    
     glGenTextures(1, &gl.animeTexture);
     //-------------------------------------------------------------------------
     //anime texture
@@ -462,6 +481,8 @@ void initOpengl(void)
 	    GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
     //-------------------------------------------------------------------------
     //
+    
+    
     glGenTextures(1, &gl.jeremyTexture);
     //-------------------------------------------------------------------------
     //jeremy texture
@@ -476,6 +497,8 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_jeremy, h_jeremy, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[5].data);
     //-------------------------------------------------------------------------
+    
+    
     //OpenGL initialization
     glGenTextures(1, &gl.tinaTexture);
     //-------------------------------------------------------------------------
@@ -507,6 +530,8 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_cactus, h_cactus, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[7].data);
     //-------------------------------------------------------------------------
+    
+    
     glGenTextures(1, &gl.enemy1Texture);
     //-------------------------------------------------------------------------
     //enemy1 texture
@@ -522,6 +547,8 @@ void initOpengl(void)
 	    GL_RGB, GL_UNSIGNED_BYTE, img[8].data);
     glGenTextures(1, &gl.settings_icon_Texture);
     //-------------------------------------------------------------------------
+    
+    
     glGenTextures(1, &gl.goblinTexture);
     //-------------------------------------------------------------------------
     //goblin texture
@@ -535,6 +562,8 @@ void initOpengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_goblin, h_goblin, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[9].data);
+    
+    
     //settings icon texture
     //
     int w_settings_icon = img[10].width;
@@ -547,18 +576,20 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_settings_icon, h_settings_icon, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[10].data);
     //-------------------------------------------------------------------------
- //perdition menu 
-    //
+    //perdition texture - title screen
+ 
+    glGenTextures(1, &gl.perditionTexture);
+    //-------------------------------------------------------------------------
     int w_p = img[11].width;
     int h_p = img[11].height;
     //
-    glBindTexture(GL_TEXTURE_2D, gl.settings_icon_Texture);
+    glBindTexture(GL_TEXTURE_2D, gl.goblinTexture);
     //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_p, h_p, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[11].data);
-    //-------------------------------------------------------------------------
+    
     glViewport(0, 0, gl.xres, gl.yres);
     //Initialize matrices
     glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -895,53 +926,48 @@ void physics(void)
     }
     gl.ball_pos[1] += gl.ball_vel[1];
 
-    /*
-    if (key == XK_space) {
-	extern void jump(GLuint texid);
-	jump(gl.walkTexture);
-    }*/
-
+   /* 
+    //have enemy1 move
+    extern void moveEnemy1(GLuint texid);
+    moveEnemy1(gl.enemy1Texture);*/
 }
 
-void moveEnemy1() {
-
-    extern void showEnemy1(int x, int y, GLuint texid);
-    showEnemy1(700, 240, gl.enemy1Texture);
-
-    int xres, yres;
-    //make enemy move?
-    int addgrav = 1;
-    //update position
-    enemy1.pos[0] += enemy1.vel[0];
-    enemy1.pos[1] += enemy1.vel[1];
-
-    //check for collision with window edges
-    if((enemy1.pos[0] < -140.0 && enemy1.vel[0] < 0.0) ||
-	    (enemy1.pos[0] >= (float)xres+140.0 &&
-	     enemy1.vel[0] > 0.0))
-    {
-	enemy1.vel[0] = -enemy1.vel[0];
-	addgrav = 0;
-    }    
-
-    if ((enemy1.pos[1] < 150.0 && enemy1.vel[1] < 0.0) ||
-	    (enemy1.pos[1] >= (float)yres && enemy1.vel[1] > 0.0)) {
-	enemy1.vel[1] = -enemy1.vel[1];
-	addgrav = 0;
+/*
+void cleanupRaindrops() {
+    Raindrop *s;
+    while(rainhead) {
+	s = rainhead->next;
+	free(rainhead);
+	rainhead = s;
     }
-
-    //gravity
-    if (addgrav)
-	enemy1.vel[1] -= 0.75;
+    rainhead=NULL;
 }
+
+void deleteRain(Raindrop *node) {
+    if (node->prev == NULL) {
+	if (node->next == NULL) {
+	    rainhead = NULL;
+	}
+	} else {
+	    if (node->next == NULL) {
+		node ->prev = NULL;
+	    } else {
+		node->prev->next = node->next;
+		node->next->prev = node->prev;
+	    }
+	}
+	free(node);
+	node = NULL;
+}
+*/
 
 void render(void)
 {	
 
     if(!push_start)	{
 
-	extern void menu(int x, int y);
-	menu(100, gl.yres-155);
+	extern void menu(int x, int y, GLuint texid);
+	menu(100, gl.yres-155, gl.perditionTexture);
 
 	if (gl.credits) {
 
@@ -996,6 +1022,8 @@ void render(void)
 	    showHelp(50, gl.yres-60);
 	    return;
 	}
+
+
 
 	float cx = gl.xres/2.0;
 	float cy = gl.yres/2.0;
@@ -1186,17 +1214,20 @@ void render(void)
 	    glDisable(GL_ALPHA_TEST);
 	}
 
-	//show enemy
-	/*	
-		extern void showEnemy1(int x, int y, GLuint Texid);
-	//showEnemy1(700, 240, gl.enemy1Texture);
+
+	//show enemy	
+	extern void showEnemy1(int x, int y, GLuint Texid);
+	showEnemy1(700, 240, gl.enemy1Texture);
 
 	extern void showGoblin(int x, int y, GLuint Texid);
 	//showGoblin(800, 240, gl.goblinTexture);
-
+/*	
+	int randomEnem = {enem1, enem2};
+	int enem1 = showEnemy1(700, 240, gl.enemy1Texture);
+	int enem2 = showGoblin(800, 240, gl.goblinTexture);
 
 	random.choice(RandomEnem);
-	*/
+*/
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
