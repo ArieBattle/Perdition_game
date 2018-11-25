@@ -173,7 +173,6 @@ class Raindrop {
     public:
 	int type;
 	int linewidth;
-	int sound;
 	Vec pos;
 	Vec lastpos;
 	Vec vel;
@@ -589,7 +588,7 @@ void initOpengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, w_p, h_p, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, img[11].data);
-    
+   //--------------------------------------------------------------------------- 
     glViewport(0, 0, gl.xres, gl.yres);
     //Initialize matrices
     glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -926,6 +925,13 @@ void physics(void)
     }
     gl.ball_pos[1] += gl.ball_vel[1];
 
+
+    //if spacebar is hit jump (?)
+    if (gl.keys[XK_space]) {
+	    extern void jump(GLuint texid);
+	    jump(gl.walkTexture);
+    }
+		
    /* 
     //have enemy1 move
     extern void moveEnemy1(GLuint texid);
@@ -1000,7 +1006,9 @@ void render(void)
 	//Clear the screen
 	glClearColor(0.1, 0.1, 0.1, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
-
+	
+	extern void showBackground(int x, int y, GLuint texid);
+	showBackground(0, 0, gl.perditionTexture);
 
 	// show settings icon top right
 	extern void showSettingsIcon(int x, int y, GLuint texid);
@@ -1028,6 +1036,8 @@ void render(void)
 	float cx = gl.xres/2.0;
 	float cy = gl.yres/2.0;
 	//
+	
+	/*
 	//show ground
 	glBegin(GL_QUADS);
 	glColor3f(0.2, 0.2, 0.2);
@@ -1051,6 +1061,7 @@ void render(void)
 	    glEnd();
 	    glPopMatrix();
 	}
+
 	//
 	//========================
 	//Render the tile system
@@ -1117,7 +1128,8 @@ void render(void)
 	glEnd();
 	glPopMatrix();
 	//--------------------------------------
-	//
+	// */
+	
 	//#define SHOW_FAKE_SHADOW
 #ifdef SHOW_FAKE_SHADOW
 	glColor3f(0.25, 0.25, 0.25);
@@ -1220,14 +1232,8 @@ void render(void)
 	showEnemy1(700, 240, gl.enemy1Texture);
 
 	extern void showGoblin(int x, int y, GLuint Texid);
-	//showGoblin(800, 240, gl.goblinTexture);
-/*	
-	int randomEnem = {enem1, enem2};
-	int enem1 = showEnemy1(700, 240, gl.enemy1Texture);
-	int enem2 = showGoblin(800, 240, gl.goblinTexture);
+	showGoblin(800, 240, gl.goblinTexture);
 
-	random.choice(RandomEnem);
-*/
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;

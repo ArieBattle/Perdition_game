@@ -1,29 +1,17 @@
 //Arielle Battle
 //Arielle's game source code
 //Description: my source code contains the function for showing my name, 
-//	       my picture, and the jump function in the main walk2.cpp file
+//	       my picture, moving enemy function, in-game background image, 
+//	       collision function and the jump function
 
+	       
 #include "fonts.h"
 #include <GL/glx.h>
 #include <cmath>
 #include <cstdio>
 
-//create list and have random enemy chosen witin the list
-/*int RandomEnem = {enem1, enem2};
-  int enemy = random.choice(RandomEnem);
-
-//have the function equal something to the list to be randomly called
-enem1 = showEnemy1();
-enem2 = showGoblin();
-*/
-
-typedef double Vec[3];
-
-class Enemy1 {
-    public: 
-	Vec pos;
-	Vec vel;
-} enemy1;
+//function prototype
+void moveEnemy();
 
 void ShowArielleName(int x, int y)
 {
@@ -54,16 +42,16 @@ void showAriellePic(int x, int y, GLuint texid)
     glPopMatrix();
 }
 
-void showEnemy1(int x, int y, GLuint texid)
+void showBackground(int x, int y, GLuint texid)
 {
-    // static float angle = 0.0f;
+
+    Rect r;
+    r.center = 1;
 
     glColor3ub(255, 255, 255);
     int width = 25;
     glPushMatrix();
     glTranslated(x, y, 0);
-    //glTranslatef(-0.5f, -0.5f, 0.0f);	//rotates the picture
-    //angle += 1;	//the speed of the picture
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 1.0f); glVertex2i(-width, -width);
@@ -72,11 +60,9 @@ void showEnemy1(int x, int y, GLuint texid)
     glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
     glEnd();
     glPopMatrix();
-
-    //moveEnemy1();
 }
 
-void moveEnemy1(GLuint texid) {
+void moveEnemy() {
 
     int xres, yres;
     //make enemy move?
@@ -97,10 +83,29 @@ void moveEnemy1(GLuint texid) {
 	enemy1.vel[1] -= 0.75;
 }
 
+void showEnemy1(int x, int y, GLuint texid)
+{
+    glColor3ub(255, 255, 255);
+    int width = 25;
+    glPushMatrix();
+    glTranslated(x, y, 0);
+    //glTranslatef(-0.5f, -0.5f, 0.0f);	//move the enemy side to side
+    //angle += 1;	//the speed of enemy
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(-width, -width);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(-width, width);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(width, width);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
+    glEnd();
+    glPopMatrix();
+
+    moveEnemy();
+}
+
+
 void showGoblin(int x, int y, GLuint texid)
 {
-    //static float angle = 0.0f;
-
     glColor3ub(255, 255, 255);
     int width2 = 205;
     glPushMatrix();
@@ -144,7 +149,7 @@ void menu (int x, int y, GLuint texid)
     ggprint8b(&b, 40, 0x00ffff44, "PRESS S TO START");
     ggprint8b(&c, 40, 0x00ffff44, "PRESS E TO EXIT");
     ggprint8b(&d, 40, 0x00ffff44, "PRESS C FOR CREDITS");
-
+/*
     glColor3ub(255, 255, 255);
     int wid;
     glPushMatrix();
@@ -156,22 +161,67 @@ void menu (int x, int y, GLuint texid)
     glTexCoord2f(1.0f, 0.0f); glVertex2i(wid, wid);
     glTexCoord2f(1.0f, 1.0f); glVertex2i(wid, -wid);
     glEnd();
-    glPopMatrix();
+    glPopMatrix();*/
 
 }
 
 void jump (GLuint texid)
 {
-    float positionX; //position of character 
-    float positionY; //position of character
-    float velocityX; 
+    float positionX = 0; //position of character 
+    float positionY = 0; //position of character
+    float velocityX = 0; 
     float velocityY = -12.0f; //should make jump same height each jump
-    const float gravity = 0.5f;
-    const float timesplice = 1.0f;
-	positionX += velocityX * timeslice; //make h.v. to x position
-	positionY += velocityY * timeslice; //make v.v. to x pos
+    float gravity = 2.0f;
+    float accX = 0;	//acceleration 
+    float accY = 0;
+
+    if (positionY < 300)
+	    velocityY += accX;
+
+    else if (positionY > 300)
+	    positionY = 300;
+
+    velocityX += accX;
+    velocityY += accY;
+
+    positionX += velocityX;
+    positionY += velocityY;
+
+    /*
+    positionX += velocityX * gravity; //make h.v. to x position
+	positionY += velocityY * gravity; //make v.v. to x pos
 	velocityY += gravity * timeslice; //apply gravity to come back down
+	*/
 }
+
+/*
+void cleanupRaindrops() {
+    Raindrop *s;
+    while(rainhead) {
+        s = rainhead->next;
+        free(rainhead);
+        rainhead = s;
+    }
+    rainhead=NULL;
+}
+
+void deleteRain(Raindrop *node) {
+    if (node->prev == NULL) {
+        if (node->next == NULL) {
+            rainhead = NULL;
+        }
+        } else {
+            if (node->next == NULL) {
+                node ->prev = NULL;
+            } else {
+                node->prev->next = node->next;
+                node->next->prev = node->prev;
+            }
+        }
+        free(node);
+        node = NULL;
+}
+*/
 
 void ccollision ()
   {
