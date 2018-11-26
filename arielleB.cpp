@@ -10,12 +10,9 @@
 #include <cmath>
 #include <cstdio>
 
-//function prototype
-void moveEnemy();
 
 
 //extern Body *player;
-
 
 void ShowArielleName(int x, int y)
 {
@@ -49,7 +46,7 @@ void showAriellePic(int x, int y, GLuint texid)
 void showBackground(int x, int y, GLuint texid)
 {
     glColor3ub(255, 255, 255);
-    int width3 = 400;
+    int width3 = 800;
     glPushMatrix();
     glTranslated(x, y, 0);
     glBindTexture(GL_TEXTURE_2D, texid);
@@ -210,8 +207,14 @@ void deleteRain(Raindrop *node) {
         free(node);
         node = NULL;
 }
-*/
 
+
+void healthDrop(int health)
+{
+
+
+}
+*/
 void ccollision ()
   {
 

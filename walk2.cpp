@@ -59,6 +59,7 @@ void physics();
 void render();
 
 int i = 15;
+int health = 100;
 //-----------------------------------------------------------------------------
 //Setup timers
 class Timers {
@@ -96,8 +97,8 @@ class Body {
 	float velocityY;
 	Body()
 	{
-		width = 25;
-		height = 100;
+		width = 50;
+		height = 150;
 		positionY = 0;
 		positionX = 0;
 		velocityX = 0.0f;
@@ -162,7 +163,7 @@ class Global {
 			camera[0] = camera[1] = 0.0;
 			movie=0;
 			movieStep=2;
-			xres=1300;
+			xres=1600;
 			yres=1300;
 			walk=0;
 			credits =0;
@@ -206,7 +207,6 @@ class Raindrop {
 } *rainhad = NULL;
 int ndrops = 1;
 int totrain = 0;
-
 int maxrain = 0;
 void deleteRain(Raindrop *node);
 void cleanupRaindrops(void);
@@ -425,11 +425,6 @@ int main(void)
 			checkMouse(&e);
 			done = checkKeys(&e);
 		}
-		/*if (getchar() == ' ')
-		  {
-		  extern void jump();
-		  jump();
-		  }*/
 		physics();
 		render();
 		x11.swapBuffers();
@@ -1038,7 +1033,7 @@ void render(void)
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		extern void showBackground(int x, int y, GLuint texid);
-		showBackground(500, -100, gl.perditionTexture);
+		showBackground(1600/2, 1300/2, gl.perditionTexture);
 
 		// show settings icon top right
 		extern void showSettingsIcon(int x, int y, GLuint texid);
@@ -1063,8 +1058,8 @@ void render(void)
 
 
 
-		float cx = gl.xres/2.0;
-		float cy = gl.yres/2.0;
+		//float cx = gl.xres/2.0;
+		//float cy = gl.yres/2.0;
 		//
 
 	/*	
