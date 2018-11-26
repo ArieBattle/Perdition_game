@@ -133,8 +133,8 @@ public:
 		camera[0] = camera[1] = 0.0;
 		movie=0;
 		movieStep=2;
-		xres=800;
-		yres=600;
+		xres=1700;
+		yres=1300;
 		walk=0;
 		jump = 0;		//added  for jump arielle
 		credits =0;
@@ -976,7 +976,7 @@ void render(void)
 	#endif
 	//
 	//
-	float h = 100.0;		// changed size of character 200.0 is original size
+	float h = 80.0;		// changed size of character 200.0 is original size
 	float w = h * 0.4;		// 0.5 is the original size
 	glPushMatrix();
 	glColor3f(1.0, 1.0, 1.0);
