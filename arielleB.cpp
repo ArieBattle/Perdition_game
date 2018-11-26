@@ -44,24 +44,21 @@ void showAriellePic(int x, int y, GLuint texid)
 
 void showBackground(int x, int y, GLuint texid)
 {
-
-    Rect r;
-    r.center = 1;
-
     glColor3ub(255, 255, 255);
-    int width = 25;
+    int width3 = 0;
     glPushMatrix();
     glTranslated(x, y, 0);
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i(-width, -width);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i(-width, width);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(width, width);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(-width3, -width3);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(-width3, width3);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(width3, width3);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(width3, -width3);
     glEnd();
     glPopMatrix();
 }
 
+/*
 void moveEnemy() {
 
     int xres, yres;
@@ -70,18 +67,18 @@ void moveEnemy() {
     //update position
     enemy1.pos[0] += enemy1.vel[0];
     enemy1.pos[1] += enemy1.vel[1];
-    /*    //check for collision with window edges
+        //check for collision with window edges
 	  if((enemy1.pos[0] < -140.0 && enemy1.vel[0] < 0.0) ||
 	  (enemy1.pos[0] >= (float)g.xres+140.0 &&
 	  enemy1.vel[0] > 0.0))
 	  {
 	  enemy1.vel[0] = -enemy1.vel[0];
 	  addgrav;
-	  }*/
+	  }
     //gravity
     if (addgrav)
 	enemy1.vel[1] -= 0.75;
-}
+}*/
 
 void showEnemy1(int x, int y, GLuint texid)
 {
@@ -100,7 +97,7 @@ void showEnemy1(int x, int y, GLuint texid)
     glEnd();
     glPopMatrix();
 
-    moveEnemy();
+    //moveEnemy();
 }
 
 
@@ -122,7 +119,7 @@ void showGoblin(int x, int y, GLuint texid)
     glPopMatrix();
 }
 
-void menu (int x, int y, GLuint texid)
+void menu (int x, int y)
 {
     Rect a;
     Rect b;
@@ -149,19 +146,6 @@ void menu (int x, int y, GLuint texid)
     ggprint8b(&b, 40, 0x00ffff44, "PRESS S TO START");
     ggprint8b(&c, 40, 0x00ffff44, "PRESS E TO EXIT");
     ggprint8b(&d, 40, 0x00ffff44, "PRESS C FOR CREDITS");
-/*
-    glColor3ub(255, 255, 255);
-    int wid;
-    glPushMatrix();
-    glTranslated(x, y, 0);
-    glBindTexture(GL_TEXTURE_2D, texid);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i(-wid, -wid);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i(-wid, wid);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(wid, wid);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(wid, -wid);
-    glEnd();
-    glPopMatrix();*/
 
 }
 
@@ -172,19 +156,18 @@ void jump (GLuint texid)
     float velocityX = 0; 
     float velocityY = -12.0f; //should make jump same height each jump
     float gravity = 2.0f;
-    float accX = 0;	//acceleration 
-    float accY = 0;
+    //bool inAir = true;
 
-    if (positionY < 300)
-	    velocityY += accX;
+    if (positionY < 400)
+	    velocityY += (2*gravity);
 
-    else if (positionY > 300)
+    else if (positionY > 400)
 	    positionY = 300;
 
-    velocityX += accX;
-    velocityY += accY;
+    //velocityX += (2*gravity);
+    velocityY += (2*gravity);
 
-    positionX += velocityX;
+    //positionX += velocityX;
     positionY += velocityY;
 
     /*
