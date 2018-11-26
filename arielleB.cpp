@@ -13,6 +13,10 @@
 //function prototype
 void moveEnemy();
 
+
+//extern Body *player;
+
+
 void ShowArielleName(int x, int y)
 {
     Rect r;
@@ -45,7 +49,7 @@ void showAriellePic(int x, int y, GLuint texid)
 void showBackground(int x, int y, GLuint texid)
 {
     glColor3ub(255, 255, 255);
-    int width3 = 0;
+    int width3 = 400;
     glPushMatrix();
     glTranslated(x, y, 0);
     glBindTexture(GL_TEXTURE_2D, texid);
@@ -104,7 +108,7 @@ void showEnemy1(int x, int y, GLuint texid)
 void showGoblin(int x, int y, GLuint texid)
 {
     glColor3ub(255, 255, 255);
-    int width2 = 205;
+    int width2 = 25;
     glPushMatrix();
     glTranslated(x, y, 0);
     //glRotatef(angle2, 0.0f, 0.0f, 1.0f);	//rotates the picture
@@ -149,7 +153,9 @@ void menu (int x, int y)
 
 }
 
-void jump (GLuint texid)
+
+/*
+void jump (player)
 {
     float positionX = 0; //position of character 
     float positionY = 0; //position of character
@@ -170,14 +176,14 @@ void jump (GLuint texid)
     //positionX += velocityX;
     positionY += velocityY;
 
-    /*
+    
     positionX += velocityX * gravity; //make h.v. to x position
 	positionY += velocityY * gravity; //make v.v. to x pos
 	velocityY += gravity * timeslice; //apply gravity to come back down
-	*/
+	
 }
 
-/*
+
 void cleanupRaindrops() {
     Raindrop *s;
     while(rainhead) {

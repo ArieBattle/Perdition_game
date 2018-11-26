@@ -58,7 +58,7 @@ void init();
 void physics();
 void render();
 
-
+int i = 15;
 //-----------------------------------------------------------------------------
 //Setup timers
 class Timers {
@@ -162,8 +162,8 @@ class Global {
 			camera[0] = camera[1] = 0.0;
 			movie=0;
 			movieStep=2;
-			xres=800;
-			yres=600;
+			xres=1300;
+			yres=1300;
 			walk=0;
 			credits =0;
 			settings = 0;
@@ -605,7 +605,7 @@ void initOpengl(void)
 	int w_p = img[11].width;
 	int h_p = img[11].height;
 	//
-	glBindTexture(GL_TEXTURE_2D, gl.goblinTexture);
+	glBindTexture(GL_TEXTURE_2D, gl.perditionTexture);
 	//
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -834,15 +834,14 @@ int checkKeys(XEvent *e)
 			gl.helpTab ^= 1;
 			break;	
 		case XK_space:
-
 			cout << "debug";
 			//if spacebar is hit jump (?)
 			bool inAir = true;
-			if (gl.walkTexture > 300)
+			if (player->positionY > 300)
 				inAir = false;
 			if (gl.keys[XK_space] && inAir == false) {
-				extern void jump(GLuint texid);
-				jump(gl.walkTexture);
+				//extern void jump(player);
+				//jump(player);
 			}
 
 			break;
@@ -1035,11 +1034,11 @@ void render(void)
 	} else {
 		Rect r;
 		//Clear the screen
-		glClearColor(0.1, 0.1, 0.1, 1.0);
+      		glClearColor(0.1, 0.1, 0.1, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		//extern void showBackground(int x, int y, GLuint texid);
-		//showBackground(0, 0, gl.perditionTexture);
+		extern void showBackground(int x, int y, GLuint texid);
+		showBackground(500, -100, gl.perditionTexture);
 
 		// show settings icon top right
 		extern void showSettingsIcon(int x, int y, GLuint texid);
@@ -1068,7 +1067,7 @@ void render(void)
 		float cy = gl.yres/2.0;
 		//
 
-		/*
+	/*	
 		//show ground
 		glBegin(GL_QUADS);
 		glColor3f(0.2, 0.2, 0.2);
@@ -1078,7 +1077,7 @@ void render(void)
 		glVertex2i(gl.xres,   0);
 		glVertex2i(0,         0);
 		glEnd();
-		//
+		
 		//show boxes as background
 		for (int i=0; i<20; i++) {
 		glPushMatrix();
@@ -1277,10 +1276,10 @@ void render(void)
 */
 	//show enemy	
 	extern void showEnemy1(int x, int y, GLuint Texid);
-	//showEnemy1(700, 240, gl.enemy1Texture);
+	showEnemy1(500, 30, gl.enemy1Texture);
 
 	extern void showGoblin(int x, int y, GLuint Texid);
-	//showGoblin(800, 240, gl.goblinTexture);
+	showGoblin(700, 30, gl.goblinTexture);
 
 	r.bot = gl.yres - 20;
 	r.left = 10;
