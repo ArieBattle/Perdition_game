@@ -46,7 +46,7 @@ typedef Flt	Matrix[4][4];
 
 //constants
 const float timeslice = 1.0f;
-const float gravity = -0.2f;
+const float gravity = -0.4f;
 #define ALPHA 1
 
 //function prototypes
@@ -87,6 +87,27 @@ class Timers {
 
 class Image;
 
+class Enem {
+	public:
+		int wid;
+		int hgt;
+		int posX;
+		int posY;
+		float velX;
+		float velY;
+		Enem() 
+		{
+			wid = 25;
+			hgt = 50;
+			posX = 0;
+			posY = 0;
+			velY = 0.0f;
+			velX = 0.0f;
+
+		}
+};
+Enem *enemy1;
+
 class Body {
 	public:
 	int width;
@@ -105,8 +126,8 @@ class Body {
 	       	velocityY = 0.0f;
 	}
 };
-
 Body *player;
+
 class Sprite {
 	public:
 		int onoff;
@@ -210,6 +231,7 @@ int totrain = 0;
 int maxrain = 0;
 void deleteRain(Raindrop *node);
 void cleanupRaindrops(void);
+void collisions(Body *);
 
 class Level {
 	public:
@@ -425,7 +447,7 @@ int main(void)
 			checkMouse(&e);
 			done = checkKeys(&e);
 		}
-		physics();
+		collisions(player);
 		render();
 		x11.swapBuffers();
 	}
@@ -829,14 +851,13 @@ int checkKeys(XEvent *e)
 			gl.helpTab ^= 1;
 			break;	
 		case XK_space:
-			cout << "debug";
 			//if spacebar is hit jump (?)
 			bool inAir = true;
-			if (player->positionY > 300)
+			if (player->positionY < 300)
 				inAir = false;
 			if (gl.keys[XK_space] && inAir == false) {
-				//extern void jump(player);
-				//jump(player);
+				extern void jump(Body *p);
+				jump(player);
 			}
 
 			break;
@@ -863,106 +884,15 @@ Flt VecNormalize(Vec vec)
 	return(len);
 }
 
-void physics(void)
+void collisions(Body *player)
 {
-	if (gl.walk || gl.keys[XK_Right] || gl.keys[XK_Left]) {
-		//man is walking...
-		//when time is up, advance the frame.
-		timers.recordTime(&timers.timeCurrent);
-		double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
-		if (timeSpan > gl.delay) {
-			//advance
-			++gl.walkFrame;
-			if (gl.walkFrame >= 16)
-				gl.walkFrame -= 16;
-			timers.recordTime(&timers.walkTime);
-		}
-		for (int i=0; i<20; i++) {
-			if (gl.keys[XK_Left]) {
-				gl.box[i][0] += 1.0 * (0.05 / gl.delay);
-				if (gl.box[i][0] > gl.xres + 10.0)
-					gl.box[i][0] -= gl.xres + 10.0;
-				gl.camera[0] -= 2.0/lev.tilesize[0] * (0.05 / gl.delay);
-				if (gl.camera[0] < 0.0)
-					gl.camera[0] = 0.0;
-			} else {
-				gl.box[i][0] -= 1.0 * (0.05 / gl.delay);
-				if (gl.box[i][0] < -10.0)
-					gl.box[i][0] += gl.xres + 10.0;
-				gl.camera[0] += 2.0/lev.tilesize[0] * (0.05 / gl.delay);
-				if (gl.camera[0] < 0.0)
-					gl.camera[0] = 0.0;
-			}
-		}
-		if (gl.exp.onoff) {
-			gl.exp.pos[0] -= 2.0 * (0.05 / gl.delay);
-		}
-		if (gl.exp44.onoff) {
-			gl.exp44.pos[0] -= 2.0 * (0.05 / gl.delay);
-		}
+	player->positionY += gravity;
+	//test for the character staying on the screen
+	if(player->positionY < 0)
+	{
+		player->positionY = 0;
 	}
-	if (gl.exp.onoff) {
-		//explosion is happening
-		timers.recordTime(&timers.timeCurrent);
-		double timeSpan = timers.timeDiff(&gl.exp.time, &timers.timeCurrent);
-		if (timeSpan > gl.exp.delay) {
-			//advance explosion frame
-			++gl.exp.frame;
-			if (gl.exp.frame >= 23) {
-				//explosion is done.
-				gl.exp.onoff = 0;
-				gl.exp.frame = 0;
-			} else {
-				timers.recordTime(&gl.exp.time);
-			}
-		}
-	}
-	if (gl.exp44.onoff) {
-		//explosion is happening
-		timers.recordTime(&timers.timeCurrent);
-		double timeSpan = timers.timeDiff(&gl.exp44.time, &timers.timeCurrent);
-		if (timeSpan > gl.exp44.delay) {
-			//advance explosion frame
-			++gl.exp44.frame;
-			if (gl.exp44.frame >= 16) {
-				//explosion is done.
-				gl.exp44.onoff = 0;
-				gl.exp44.frame = 0;
-			} else {
-				timers.recordTime(&gl.exp44.time);
-			}
-		}
-	}
-	//====================================
-	//Adjust position of ball.
-	//Height of highest tile when ball is?
-	//====================================
-	Flt dd = lev.ftsz[0];
-	int col = (int)((gl.camera[0]+gl.ball_pos[0]) / dd);
-	col = col % lev.ncols;
-	int hgt = 0;
-	for (int i=0; i<lev.nrows; i++) {
-		if (lev.arr[i][col] != ' ') {
-			hgt = (lev.nrows-i) * lev.tilesize[1];
-			break;
-		}
-	}
-	if (gl.ball_pos[1] < (Flt)hgt) {
-		gl.ball_pos[1] = (Flt)hgt;
-		MakeVector(gl.ball_vel, 0, 0, 0);
-	} else {
-		gl.ball_vel[1] -= 0.9;
-	}
-	gl.ball_pos[1] += gl.ball_vel[1];
-
-
-
-	/* 
-	//have enemy1 move
-	extern void moveEnemy1(GLuint texid);
-	moveEnemy1(gl.enemy1Texture);*/
 }
-
 /*
    void cleanupRaindrops() {
    Raindrop *s;
@@ -1062,214 +992,47 @@ void render(void)
 		//float cy = gl.yres/2.0;
 		//
 
-	/*	
-		//show ground
-		glBegin(GL_QUADS);
-		glColor3f(0.2, 0.2, 0.2);
-		glVertex2i(0,       220);
-		glVertex2i(gl.xres, 220);
-		glColor3f(0.4, 0.4, 0.4);
-		glVertex2i(gl.xres,   0);
-		glVertex2i(0,         0);
-		glEnd();
-		
-		//show boxes as background
-		for (int i=0; i<20; i++) {
-		glPushMatrix();
-		glTranslated(gl.box[i][0],gl.box[i][1],gl.box[i][2]);
-		glColor3f(0.2, 0.2, 0.2);
-		glBegin(GL_QUADS);
-		glVertex2i( 0,  0);
-		glVertex2i( 0, 30);
-		glVertex2i(20, 30);
-		glVertex2i(20,  0);
-		glEnd();
-		glPopMatrix();
-		}
 
-		//
-		//========================
-		//Render the tile system
-		//========================
-		int tx = lev.tilesize[0];
-		int ty = lev.tilesize[1];
-		Flt dd = lev.ftsz[0];
-		Flt offy = lev.tile_base;
-		int ncols_to_render = gl.xres / lev.tilesize[0] + 2;
-		int col = (int)(gl.camera[0] / dd);
-		col = col % lev.ncols;
-		//Partial tile offset must be determined here.
-		//The leftmost tile might be partially off-screen.
-		//cdd: camera position in terms of tiles.
-		Flt cdd = gl.camera[0] / dd;
-		//flo: just the integer portion
-		Flt flo = floor(cdd);
-		//dec: just the decimal portion
-		Flt dec = (cdd - flo);
-		//offx: the offset to the left of the screen to start drawing tiles
-		Flt offx = -dec * dd;
-		//Log("gl.camera[0]: %lf   offx: %lf\n",gl.camera[0],offx);
-		for (int j=0; j<ncols_to_render; j++) {
-		int row = lev.nrows-1;
-		for (int i=0; i<lev.nrows; i++) {
-		if (lev.arr[row][col] == 'w') {
-		glColor3f(0.8, 0.8, 0.6);
-		glPushMatrix();
-		//put tile in its place
-		glTranslated((Flt)j*dd+offx, (Flt)i*lev.ftsz[1]+offy, 0);
-		glBegin(GL_QUADS);
-		glVertex2i( 0,  0);
-		glVertex2i( 0, ty);
-		glVertex2i(tx, ty);
-		glVertex2i(tx,  0);
-		glEnd();
-		glPopMatrix();
-		}
-		if (lev.arr[row][col] == 'b') {
-		glColor3f(0.9, 0.2, 0.2);
-		glPushMatrix();
-		glTranslated((Flt)j*dd+offx, (Flt)i*lev.ftsz[1]+offy, 0);
-		glBegin(GL_QUADS);
-		glVertex2i( 0,  0);
-		glVertex2i( 0, ty);
-		glVertex2i(tx, ty);
-		glVertex2i(tx,  0);
-		glEnd();
-		glPopMatrix();
-	}
-	--row;
-	}
-	col = (col+1) % lev.ncols;
-	}
-	glColor3f(1.0, 1.0, 0.1);
-	glPushMatrix();
-	//put ball in its place
-	glTranslated(gl.ball_pos[0], lev.tile_base+gl.ball_pos[1], 0);
-	glBegin(GL_QUADS);
-	glVertex2i(-10, 0);
-	glVertex2i(-10, 20);
-	glVertex2i( 10, 20);
-	glVertex2i( 10, 0);
-	glEnd();
-	glPopMatrix();
-	//--------------------------------------
-	// */
-
-	//#define SHOW_FAKE_SHADOW
-#ifdef SHOW_FAKE_SHADOW
-	/*
-	glColor3f(0.25, 0.25, 0.25);
-	glBegin(GL_QUADS);
-	glVertex2i(cx-60, 150);
-	glVertex2i(cx+50, 150);
-	glVertex2i(cx+50, 130);
-	glVertex2i(cx-60, 130);
-	glEnd();
-	*/
-#endif
 	//
-	//
+	//this is for the player
 	glPushMatrix();
 	glColor3f(1.0, 1.0, 1.0);
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0f);
-	glTranslatef(player->positionX, player->positionY, 0.0f);
+	glTranslatef(player->positionX+100, player->positionY+100, 0.0f);
 	glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 1.0f); glVertex2i(-player->width, -player->height);
-	glTexCoord2f(0.0f, 0.0f); glVertex2i(-player->width, player->height);
-	glTexCoord2f(0.125f, 0.0f); glVertex2i(player->width, player->height);
-	glTexCoord2f(0.125f, 1.0f); glVertex2i(player->width, -player->height);
-	glEnd();
-	glPopMatrix();
-
-/*
-	float h = 50.0;		// changed size of character 200.0 is original size
-	float w = h * 0.4;		// 0.5 is the original size
-	glPushMatrix();
-	glColor3f(1.0, 1.0, 1.0);
-	//glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.0f);
-	glColor4ub(255,255,255,255);
+	
+	//added for other walking pics	
 	int ix = gl.walkFrame % 8;
 	int iy = 0;
 	if (gl.walkFrame >= 8)
 		iy = 1;
 	float fx = (float)ix / 8.0;
 	float fy = (float)iy / 2.0;
+
 	glBegin(GL_QUADS);
+
 	if (gl.keys[XK_Left]) {
-		glTexCoord2f(fx+.125, fy+.5); glVertex2i(cx-w, cy-h);
-		glTexCoord2f(fx+.125, fy);    glVertex2i(cx-w, cy+h);
-		glTexCoord2f(fx,      fy);    glVertex2i(cx+w, cy+h);
-		glTexCoord2f(fx,      fy+.5); glVertex2i(cx+w, cy-h);
+		glTexCoord2f(fx+.125, fy+.5); glVertex2i(-player->width, -player->height);
+		glTexCoord2f(fx+.125, fy);    glVertex2i(-player->width, player->height);
+		glTexCoord2f(fx, fy);    glVertex2i(player->width, player->height);
+		glTexCoord2f(fx, fy+.5); glVertex2i(player->width, -player->height);
 	} else {
-		glTexCoord2f(fx,      fy+.5); glVertex2i(cx-w, cy-h);
-		glTexCoord2f(fx,      fy);    glVertex2i(cx-w, cy+h);
-		glTexCoord2f(fx+.125, fy);    glVertex2i(cx+w, cy+h);
-		glTexCoord2f(fx+.125, fy+.5); glVertex2i(cx+w, cy-h);
-	}
+		glTexCoord2f(fx, fy+.5); glVertex2i(-player->width, -player->height);
+		glTexCoord2f(fx, fy);    glVertex2i(-player->width, player->height);
+		glTexCoord2f(fx+.125, fy);    glVertex2i(player->width, player->height);
+		glTexCoord2f(fx+.125, fy+.5); glVertex2i(player->width, -player->height);
+		}
+
+/*
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-player->width, -player->height);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-player->width, player->height);
+	glTexCoord2f(0.125f, 0.0f); glVertex2i(player->width, player->height);
+	glTexCoord2f(0.125f, 1.0f); glVertex2i(player->width, -player->height);*/
 	glEnd();
 	glPopMatrix();
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_ALPHA_TEST);
-	
-	//
-	//
-	if (gl.exp.onoff) {
-		h = 80.0;
-		w = 80.0;
-		glPushMatrix();
-		glColor3f(1.0, 1.0, 1.0);
-		glBindTexture(GL_TEXTURE_2D, gl.exp.tex);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.0f);
-		glColor4ub(255,255,255,255);
-		glTranslated(gl.exp.pos[0], gl.exp.pos[1], gl.exp.pos[2]);
-		int ix = gl.exp.frame % 5;
-		int iy = gl.exp.frame / 5;
-		float tx = (float)ix / 5.0;
-		float ty = (float)iy / 5.0;
-		glBegin(GL_QUADS);
-		glTexCoord2f(tx,     ty+0.2); glVertex2i(cx-w, cy-h);
-		glTexCoord2f(tx,     ty);     glVertex2i(cx-w, cy+h);
-		glTexCoord2f(tx+0.2, ty);     glVertex2i(cx+w, cy+h);
-		glTexCoord2f(tx+0.2, ty+0.2); glVertex2i(cx+w, cy-h);
-		glEnd();
-		glPopMatrix();
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_ALPHA_TEST);
-	}
-	//
-	//
-	if (gl.exp44.onoff) {
-		h = 80.0;
-		w = 80.0;
-		glPushMatrix();
-		glColor3f(1.0, 1.0, 1.0);
-		glBindTexture(GL_TEXTURE_2D, gl.exp44.tex);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.0f);
-		glColor4ub(255,255,255,255);
-		glTranslated(gl.exp44.pos[0], gl.exp44.pos[1], gl.exp44.pos[2]);
-		int ix = gl.exp44.frame % 4;
-		int iy = gl.exp44.frame / 4;
-		float tx = (float)ix / 4.0;
-		float ty = (float)iy / 4.0;
-		glBegin(GL_QUADS);
-		glTexCoord2f(tx,      ty+0.25); glVertex2i(cx-w, cy-h);
-		glTexCoord2f(tx,      ty);      glVertex2i(cx-w, cy+h);
-		glTexCoord2f(tx+0.25, ty);      glVertex2i(cx+w, cy+h);
-		glTexCoord2f(tx+0.25, ty+0.25); glVertex2i(cx+w, cy-h);
-		glEnd();
-		glPopMatrix();
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisable(GL_ALPHA_TEST);
-	}
 
-*/
-	//show enemy	
+		//show enemy	
 	extern void showEnemy1(int x, int y, GLuint Texid);
 	showEnemy1(500, 30, gl.enemy1Texture);
 

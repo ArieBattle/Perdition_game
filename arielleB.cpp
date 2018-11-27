@@ -4,15 +4,13 @@
 //	       my picture, moving enemy function, in-game background image, 
 //	       collision function and the jump function
 
-	       
+#include "classes.h"	//store class for character to pass reference for jump
 #include "fonts.h"
 #include <GL/glx.h>
 #include <cmath>
 #include <cstdio>
-
-
-
-//extern Body *player;
+#include <iostream>
+using namespace std;
 
 void ShowArielleName(int x, int y)
 {
@@ -87,7 +85,7 @@ void showEnemy1(int x, int y, GLuint texid)
     int width = 25;
     glPushMatrix();
     glTranslated(x, y, 0);
-    //glTranslatef(-0.5f, -0.5f, 0.0f);	//move the enemy side to side
+    glTranslatef(-0.5f, -0.5f, 0.0f);	//move the enemy side to side
     //angle += 1;	//the speed of enemy
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
@@ -151,36 +149,21 @@ void menu (int x, int y)
 }
 
 
-/*
-void jump (player)
+
+void jump (Body *p)
 {
-    float positionX = 0; //position of character 
-    float positionY = 0; //position of character
-    float velocityX = 0; 
-    float velocityY = -12.0f; //should make jump same height each jump
-    float gravity = 2.0f;
+    float gravity = 5.0f;
     //bool inAir = true;
 
-    if (positionY < 400)
-	    velocityY += (2*gravity);
+    if (p->positionY < 400)
+	    p->positionY += (5*gravity);
 
-    else if (positionY > 400)
-	    positionY = 300;
+    else if (p->positionY >= 400)
+	    p->positionY = 400;
 
-    //velocityX += (2*gravity);
-    velocityY += (2*gravity);
-
-    //positionX += velocityX;
-    positionY += velocityY;
-
-    
-    positionX += velocityX * gravity; //make h.v. to x position
-	positionY += velocityY * gravity; //make v.v. to x pos
-	velocityY += gravity * timeslice; //apply gravity to come back down
-	
 }
 
-
+/*
 void cleanupRaindrops() {
     Raindrop *s;
     while(rainhead) {
