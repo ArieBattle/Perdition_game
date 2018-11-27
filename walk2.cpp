@@ -826,8 +826,8 @@ int checkKeys(XEvent *e)
 			gl.movie ^= 1;
 			break;
 		case XK_w:
-			//timers.recordTime(&timers.walkTime);
-			//gl.walk ^= 1;
+			timers.recordTime(&timers.walkTime);
+			gl.walk ^= 1;
 			
 			/*
 			extern void Rcollision(int x, int y,Body *p, Enem *e, GLuint texid);
@@ -835,8 +835,6 @@ int checkKeys(XEvent *e)
 			if (gl.keys[XK_w]) {
 			Rcollision(1600/2, 1300/2, player, enem, gl.bloodsplatterTexture);
 			}*/
-			
-		    exit(0);	
 			break;
 		case XK_e:
 			exit(0);
@@ -880,10 +878,8 @@ int checkKeys(XEvent *e)
 			break;	
 		case XK_space:
 			//if spacebar is hit jump (?)
-			bool inAir = true;
 			if (player->positionY < 300)
-				inAir = false;
-			if (gl.keys[XK_space] && inAir == false) {
+			if (gl.keys[XK_space]) {
 				extern void jump(Body *p);
 				jump(player);
 			}
@@ -1027,7 +1023,7 @@ void render(void)
 	glColor3f(1.0, 1.0, 1.0);
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0f);
-	glTranslatef(player->positionX+100, player->positionY+100, 0.0f);
+	glTranslatef(player->positionX+100, player->positionY+115, 0.0f);
 	glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
 	
 	//added for other walking pics	
@@ -1060,13 +1056,13 @@ void render(void)
 	glEnd();
 	glPopMatrix();
 
-
+/*
 	//this is for the enemies
 	glPushMatrix();
 	glColor3f(1.0, 1.0, 1.0);
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0f);
-	glTranslatef(enem->posX+100, enem->posY+1200, 0.0f);
+	glTranslatef(enem->posX, enem->posY, 0.0f);
 	glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
 	glTexCoord2f(0.0f, 1.0f); glVertex2i(-enem->wid, -enem->hgt);
 	glTexCoord2f(0.0f, 0.0f); glVertex2i(-enem->wid, enem->hgt);
@@ -1075,19 +1071,19 @@ void render(void)
 	glEnd();
 	glPopMatrix();
 
-	
+
 	
 	//move enemy back and fourth on screen
 	extern void moveEnemy(Enem *e);
 	moveEnemy(enem);
 
 	//show enemies	
-	extern void showEnemy1(int x, int y, GLuint Texid);
-	showEnemy1(500, 30, gl.enemy1Texture);
+	//extern void showEnemy1(int x, int y, GLuint Texid);
+	//showEnemy1(500, 30, gl.enemy1Texture);
 
 	extern void showGoblin(int x, int y, GLuint Texid);
 	showGoblin(700, 30, gl.goblinTexture);
-
+*/
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;

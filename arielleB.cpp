@@ -57,11 +57,21 @@ void showBackground(int x, int y, GLuint texid)
     glPopMatrix();
 }
 
-
+/*
 void moveEnemy(Enem *e) 
 {
-	
+    int move = 1;
+    while(true)
+    {
+	if (move == 1)
+	    e->posX++;
+	else 
+	    e->posX--;
+	if (e->posX <=0 || e->posX >= 1250)
+	    move = (move * -1);
+    }
 }
+*/
 
 void showEnemy1(int x, int y, GLuint texid)
 {
@@ -79,8 +89,6 @@ void showEnemy1(int x, int y, GLuint texid)
     glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
     glEnd();
     glPopMatrix();
-
-    //moveEnemy();
 }
 
 
@@ -136,21 +144,21 @@ void menu (int x, int y)
 
 void jump (Body *p)
 {
-
-
+    bool inAir = true;
     float gravity = 10.0f;
-    //bool inAir = true;
 
-    if (p->positionY < 400)
-	p->positionY += (40*gravity);
+  if (p->positionY == 0){
+     inAir = false; 
+
+    if (p->positionY < 400 && inAir == false)
+	p->positionY += (30*gravity);
 
     else if (p->positionY >= 1200)
 	p->positionY = 1200;
-
+  }
 }
 
-
-void collision (Body *p, Enem *e)
+void collision ()
 {
 	
 
