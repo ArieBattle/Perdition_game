@@ -1028,8 +1028,13 @@ void render(void)
 	#endif
 	//
 	//
+<<<<<<< HEAD
 	float h = 65.0;		// changed size of character 200.0 is original size       ||60.0
 	float w = h * 0.3;		// 0.5 is the original size				||0.3
+=======
+	float h = 80.0;		// changed size of character 200.0 is original size
+	float w = h * 0.4;		// 0.5 is the original size
+>>>>>>> 8e1e3f9754f115e842a87613b04d75e8d542f80c
 	glPushMatrix();
 	glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
