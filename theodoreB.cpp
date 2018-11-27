@@ -107,7 +107,7 @@ void sound_test()
 }
 
 //void walking_sound()
-    //Intiate walking loop sounds
+    //Initiates walking loop sounds
 //{
 //    alutInit(0, NULL);
 //    if (alGetError() != AL_NO_ERROR) {
