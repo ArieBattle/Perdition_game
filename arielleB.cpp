@@ -4,7 +4,7 @@
 //	       my picture, moving enemy function, in-game background image, 
 //	       collision function and the jump function
 
-#include "classes.h"	//store class for character to pass reference for jump
+#include "charclass.h"	//store class for character to pass reference for jump
 #include "fonts.h"
 #include <GL/glx.h>
 #include <cmath>
@@ -57,27 +57,11 @@ void showBackground(int x, int y, GLuint texid)
     glPopMatrix();
 }
 
-/*
-void moveEnemy() {
 
-    int xres, yres;
-    //make enemy move?
-    int addgrav = 1;
-    //update position
-    enemy1.pos[0] += enemy1.vel[0];
-    enemy1.pos[1] += enemy1.vel[1];
-        //check for collision with window edges
-	  if((enemy1.pos[0] < -140.0 && enemy1.vel[0] < 0.0) ||
-	  (enemy1.pos[0] >= (float)g.xres+140.0 &&
-	  enemy1.vel[0] > 0.0))
-	  {
-	  enemy1.vel[0] = -enemy1.vel[0];
-	  addgrav;
-	  }
-    //gravity
-    if (addgrav)
-	enemy1.vel[1] -= 0.75;
-}*/
+void moveEnemy(Enem *e) 
+{
+	
+}
 
 void showEnemy1(int x, int y, GLuint texid)
 {
@@ -152,53 +136,86 @@ void menu (int x, int y)
 
 void jump (Body *p)
 {
-    float gravity = 5.0f;
+
+
+    float gravity = 10.0f;
     //bool inAir = true;
 
     if (p->positionY < 400)
-	    p->positionY += (5*gravity);
+	p->positionY += (40*gravity);
 
-    else if (p->positionY >= 400)
-	    p->positionY = 400;
+    else if (p->positionY >= 1200)
+	p->positionY = 1200;
 
 }
 
-/*
-void cleanupRaindrops() {
-    Raindrop *s;
-    while(rainhead) {
-        s = rainhead->next;
-        free(rainhead);
-        rainhead = s;
-    }
-    rainhead=NULL;
-}
 
-void deleteRain(Raindrop *node) {
-    if (node->prev == NULL) {
-        if (node->next == NULL) {
-            rainhead = NULL;
-        }
-        } else {
-            if (node->next == NULL) {
-                node ->prev = NULL;
-            } else {
-                node->prev->next = node->next;
-                node->next->prev = node->prev;
-            }
-        }
-        free(node);
-        node = NULL;
-}
-
-
-void healthDrop(int health)
+void collision (Body *p, Enem *e)
 {
-
+	
 
 }
-*/
-void ccollision ()
-  {
+/*
+   void cleanupRaindrops() {
+   Raindrop *s;
+   while(rainhead) {
+   s = rainhead->next;
+   free(rainhead);
+   rainhead = s;
+   }
+   rainhead=NULL;
+   }
 
-  }
+   void deleteRain(Raindrop *node) {
+   if (node->prev == NULL) {
+   if (node->next == NULL) {
+   rainhead = NULL;
+   }
+   } else {
+   if (node->next == NULL) {
+   node ->prev = NULL;
+   } else {
+   node->prev->next = node->next;
+   node->next->prev = node->prev;
+   }
+   }
+   free(node);
+   node = NULL;
+   }
+
+
+   void healthDrop(int health)
+   {
+
+
+   }
+   */
+
+/*void Rcollision (int x, int y, Body *p, Enem *e, GLuint texid)
+{
+    for(int i = 0; i <= 650; i++)
+    {
+	p->positionX++;
+
+	for(int j = 500; j <= 1200; j--){
+	    e->posX--;
+
+	    if(p->positionX == e->posX)
+	    {
+		glColor3ub(255, 255, 255);
+		int width2 = 25;
+		glPushMatrix();
+		glTranslated(x, y, 0);
+		glBindTexture(GL_TEXTURE_2D, texid);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-width2, -width2);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-width2, width2);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(width2, width2);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(width2, -width2);
+		glEnd();
+		glPopMatrix();
+	    }
+	}
+
+    }
+}*/

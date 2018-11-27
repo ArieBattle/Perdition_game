@@ -106,7 +106,7 @@ class Enem {
 
 		}
 };
-Enem *enemy1;
+Enem *enem;
 
 class Body {
 	public:
@@ -118,8 +118,8 @@ class Body {
 	float velocityY;
 	Body()
 	{
-		width = 50;
-		height = 150;
+		width = 40;
+		height = 140;
 		positionY = 0;
 		positionX = 0;
 		velocityX = 0.0f;
@@ -168,6 +168,7 @@ class Global {
 		GLuint goblinTexture;
 		GLuint settings_icon_Texture;
 		GLuint perditionTexture;
+		GLuint bloodsplatterTexture;
 		Vec box[20];
 		Sprite exp;
 		Sprite exp44;
@@ -418,7 +419,7 @@ class Image {
 				unlink(ppmname);
 		}
 };
-Image img[12] = {
+Image img[13] = {
 	"./images/walk.gif",
 	"./images/exp.png",
 	"./images/exp44.png",
@@ -430,7 +431,8 @@ Image img[12] = {
 	"./images/enemy1.png",
 	"./images/goblin.png",
 	"./images/settings_icon.png",
-	"./images/perdition.png"};
+	"./images/perdition.png",
+	"./images/bloodsplatter.png"};
 
 
 int main(void)
@@ -629,6 +631,23 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_p, h_p, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[11].data);
 	//--------------------------------------------------------------------------- 
+	
+	glGenTextures(1, &gl.bloodsplatterTexture);
+	//-------------------------------------------------------------------------
+	//jeremy texture
+	//
+	int w_bs = img[12].width;
+	int h_bs = img[12].height;
+	//
+	glBindTexture(GL_TEXTURE_2D, gl.bloodsplatterTexture);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_bs, h_bs, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[12].data);
+	//-------------------------------------------------------------------------
+
+	
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -807,8 +826,17 @@ int checkKeys(XEvent *e)
 			gl.movie ^= 1;
 			break;
 		case XK_w:
-			timers.recordTime(&timers.walkTime);
-			gl.walk ^= 1;
+			//timers.recordTime(&timers.walkTime);
+			//gl.walk ^= 1;
+			
+			/*
+			extern void Rcollision(int x, int y,Body *p, Enem *e, GLuint texid);
+			
+			if (gl.keys[XK_w]) {
+			Rcollision(1600/2, 1300/2, player, enem, gl.bloodsplatterTexture);
+			}*/
+			
+		    exit(0);	
 			break;
 		case XK_e:
 			exit(0);
@@ -1032,7 +1060,28 @@ void render(void)
 	glEnd();
 	glPopMatrix();
 
-		//show enemy	
+
+	//this is for the enemies
+	glPushMatrix();
+	glColor3f(1.0, 1.0, 1.0);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	glTranslatef(enem->posX+100, enem->posY+1200, 0.0f);
+	glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-enem->wid, -enem->hgt);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-enem->wid, enem->hgt);
+	glTexCoord2f(0.125f, 0.0f); glVertex2i(enem->wid, enem->hgt);
+	glTexCoord2f(0.125f, 1.0f); glVertex2i(enem->wid, -enem->hgt);
+	glEnd();
+	glPopMatrix();
+
+	
+	
+	//move enemy back and fourth on screen
+	extern void moveEnemy(Enem *e);
+	moveEnemy(enem);
+
+	//show enemies	
 	extern void showEnemy1(int x, int y, GLuint Texid);
 	showEnemy1(500, 30, gl.enemy1Texture);
 
@@ -1044,7 +1093,8 @@ void render(void)
 	r.center = 0;
 	ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
 	ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
-	ggprint8b(&r, 16, 0x00ffff44, "E	Exit");
+	ggprint8b(&r, 16, 0x00ffff44, "w    	Collision");
+	ggprint8b(&r, 16, 0x00ffff44, "E        Exit");
 	if (gl.movie) {
 		screenCapture();
 	}
