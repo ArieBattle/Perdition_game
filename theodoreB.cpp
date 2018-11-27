@@ -82,26 +82,26 @@ void sound_test()
     if (alGetError() != AL_NO_ERROR) {
         printf("ERROR: setting source\n");
     }
-    for (int i=0; i<4; i++) {
+    //for (int i=0; i<4; i++) {
         alSourcePlay(alSource);
-        usleep(500000);
-    }
+    //    usleep(500000);
+    //}
     //Cleanup.
     //First delete the source.
-    alDeleteSources(1, &alSource);
+    //alDeleteSources(1, &alSource);
     //Delete the buffer.
-    alDeleteBuffers(1, &alBuffer);
+    //alDeleteBuffers(1, &alBuffer);
     //Close out OpenAL itself.
     //Get active context.
-    ALCcontext *Context = alcGetCurrentContext();
+    //ALCcontext *Context = alcGetCurrentContext();
     //Get device for active context.
-    ALCdevice *Device = alcGetContextsDevice(Context);
+    //ALCdevice *Device = alcGetContextsDevice(Context);
     //Disable context.
-    alcMakeContextCurrent(NULL);
+    //alcMakeContextCurrent(NULL);
     //Release context(s).
-    alcDestroyContext(Context);
+    //alcDestroyContext(Context);
     //Close device.
-    alcCloseDevice(Device);
+    //alcCloseDevice(Device);
     return;
 //#endif
 }
