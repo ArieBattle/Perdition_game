@@ -25,7 +25,7 @@
 #include "log.h"
 //#include "ppm.h"
 #include "fonts.h"
-
+#include </usr/include/AL/alut.h> //Added Sound Function
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -54,6 +54,9 @@ int checkKeys(XEvent *e);
 void init();
 void physics();
 void render();
+
+//extern void functions
+extern void sound_test();
 
 //-----------------------------------------------------------------------------
 //Setup timers
@@ -1062,9 +1065,11 @@ void render(void)
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
+	ggprint8b(&r, 16, 0x00ffff44, "------MENU COMMANDS------");
 	ggprint8b(&r, 16, 0x00ffff44, "C    	Credits");
 	ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
 	ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
+	ggprint8b(&r, 16, 0x00ffff44, "N        Sound Test");
 	if (gl.movie) {
 		screenCapture(); 
 	}
