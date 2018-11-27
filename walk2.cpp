@@ -705,7 +705,11 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_h:
 			gl.helpTab ^= 1;
-			break;	
+			break;
+		case XK_n:
+            		sound_test();
+            		break;
+
 	}
 	return 0;
 }
