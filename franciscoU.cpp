@@ -1,13 +1,10 @@
 /* Author: Francisco Ulloa
-* Date Modified: 9/26/18
+* Date Modified: 11/26/18
 */
 
 #include "fonts.h"
 #include <GL/glx.h>
 
-/*
-* Notes: how to make cactus transparent in helpTab
-*/
 
 extern void showFranciscoName(int x, int y)
 {
@@ -65,5 +62,22 @@ extern void showHelpText(int x, int y)
     r.bot = y;
     r.left = x;
     r.center = 1;
-    ggprint8b(&r, 40, 0x00ff00, "This is Clyde The Cactus. It doesn ## damage.");
+    ggprint8b(&r, 40, 0x00ff00, "Help info.");
 }
+
+void showBackground(int x, int y, GLuint texid)
+{
+    glColor3ub(255, 255, 255);
+    int width = 800;
+    glPushMatrix();
+    glTranslated(x, y, 0);
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex2i(-width, -width);
+    glTexCoord2f(0.0f, 0.0f); glVertex2i(-width, width);
+    glTexCoord2f(1.0f, 0.0f); glVertex2i(width, width);
+    glTexCoord2f(1.0f, 1.0f); glVertex2i(width, -width);
+    glEnd();
+    glPopMatrix();
+}
+

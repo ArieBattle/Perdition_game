@@ -26,6 +26,7 @@
 //#include "ppm.h"
 #include "fonts.h"
 
+
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -54,6 +55,7 @@ int checkKeys(XEvent *e);
 void init();
 void physics();
 void render();
+
 
 //-----------------------------------------------------------------------------
 //Setup timers
@@ -105,7 +107,6 @@ public:
 	int xres, yres;
 	int movie, movieStep;
 	int walk;
-	int jump;		//added for jump w/spacebar arielle
 	int credits;
 	int walkFrame;
 	int settings;
@@ -118,6 +119,8 @@ public:
 	GLuint animeTexture;
 	GLuint jeremyTexture;
 	GLuint settings_icon_Texture;
+	GLuint perdition_bg_Texture;
+	GLuint platesTexture;
 	Vec box[20];
 	Sprite exp;
 	Sprite exp44;
@@ -133,10 +136,9 @@ public:
 		camera[0] = camera[1] = 0.0;
 		movie=0;
 		movieStep=2;
-		xres=800;
-		yres=600;
+		xres=1700;
+		yres=1300;
 		walk=0;
-		jump = 0;		//added  for jump arielle
 		credits =0;
 		settings = 0;
 		walkFrame=0;
@@ -153,8 +155,8 @@ public:
 		exp44.image=NULL;
 		exp44.delay = 0.022;
 		for (int i=0; i<20; i++) {
-			box[i][0] = rnd() * xres;
-			box[i][1] = rnd() * (yres-220) + 220.0;
+			box[i][0] = rnd() * xres;			//rnd() * xres;
+			box[i][1] = rnd() * (yres-220) + 220.0;		//rnd() * (yres-220) + 220.0;
 			box[i][2] = 0.0;
 		}
 		memset(keys, 0, 65536);
@@ -164,15 +166,15 @@ public:
 
 class Level {
 public:
-	unsigned char arr[16][80];
+	unsigned char arr[16][90];	//16 80
 	int nrows, ncols;
 	int tilesize[2];
 	Flt ftsz[2];
 	Flt tile_base;
 	Level() {
 		//Log("Level constructor\n");
-		tilesize[0] = 32;
-		tilesize[1] = 32;
+		tilesize[0] = 16;		// og is 32
+		tilesize[1] = 16;		// og is 32
 		ftsz[0] = (Flt)tilesize[0];
 		ftsz[1] = (Flt)tilesize[1];
 		tile_base = 220.0;
@@ -347,7 +349,7 @@ public:
 			unlink(ppmname);
 	}
 };
-Image img[8] = {
+Image img[10] = {
 "./images/walk.gif",
 "./images/exp.png",
 "./images/exp44.png",
@@ -355,7 +357,9 @@ Image img[8] = {
 "./images/anime.png",
 "./images/jeremy.gif",
 "./images/tina.png",
-"./images/settings_icon.png"};
+"./images/settings_icon.png",
+"./images/perdition_bg.jpg",
+"./images/plates.png"};
 
 
 int main(void)
@@ -487,6 +491,30 @@ void initOpengl(void)
 		GL_RGB, GL_UNSIGNED_BYTE, img[7].data);
 	//-------------------------------------------------------------------------
 
+	glGenTextures(1, &gl.perdition_bg_Texture);
+	int w_perdition_bg = img[8].width;
+	int h_perdition_bg  = img[8].height;
+	glBindTexture(GL_TEXTURE_2D, gl.perdition_bg_Texture);	
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+		w_perdition_bg, h_perdition_bg,
+		0, GL_RGB, GL_UNSIGNED_BYTE, img[8].data);
+
+	//-------------------------------------------------------------------------
+
+	//=========================================================================
+	glGenTextures(1, &gl.platesTexture);
+	int w_plates = img[9].width;
+	int h_plates  = img[9].height;
+	glBindTexture(GL_TEXTURE_2D, gl.perdition_bg_Texture);	
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+		w_plates, h_plates,
+		0, GL_RGB, GL_UNSIGNED_BYTE, img[9].data);
+	
+	//=========================================================================
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -580,6 +608,9 @@ void checkMouse(XEvent *e)
 	if (e->type == ButtonPress) {
 		if (e->xbutton.button==1) {
 			//Left button is down
+			//===================================================================
+			
+			//===================================================================
 		}
 		if (e->xbutton.button==3) {
 			//Right button is down
@@ -764,6 +795,9 @@ void physics(void)
 			gl.exp44.pos[0] -= 2.0 * (0.05 / gl.delay);
 		}
 	}
+	//======================================================================================================================================================
+
+	//======================================================================================================================================================
 	if (gl.exp.onoff) {
 		//explosion is happening
 		timers.recordTime(&timers.timeCurrent);
@@ -853,7 +887,7 @@ void render(void)
 	}
 	
 	// show settings icon top right
-    extern void showSettingsIcon(int x, int y, GLuint texid);
+    /*extern void showSettingsIcon(int x, int y, GLuint texid);
     showSettingsIcon(gl.xres-30, gl.yres-30, gl.settings_icon_Texture);
 
     //display settings
@@ -861,7 +895,9 @@ void render(void)
         extern void showSettings(int x, int y);
         showSettings(100, gl.yres-100);
         return;
-    }
+    }*/
+	extern void showBackground(int x, int y, GLuint textid);
+	showBackground(gl.xres/2, gl.yres/2, gl.perdition_bg_Texture);
 
 	if (gl.helpTab) {
 		extern void showHelp(int x, int y); 
@@ -919,6 +955,9 @@ void render(void)
 	//offx: the offset to the left of the screen to start drawing tiles
 	Flt offx = -dec * dd;
 	//Log("gl.camera[0]: %lf   offx: %lf\n",gl.camera[0],offx);
+	//Image img = "./images/plates.png";
+	//gl.sprites[SB_TILE_ROCK].set_texture(&gl.spriteTextures[SS_TILES]);
+	//gl.sprites[SB_TILE_ROCK].init(0, 0, 50, 50, 1);
 	for (int j=0; j<ncols_to_render; j++) {
 		int row = lev.nrows-1;
 		for (int i=0; i<lev.nrows; i++) {
@@ -939,6 +978,19 @@ void render(void)
 				glColor3f(0.9, 0.2, 0.2);
 				glPushMatrix();
 				glTranslated((Flt)j*dd+offx, (Flt)i*lev.ftsz[1]+offy, 0);
+				glBegin(GL_QUADS);
+					glVertex2i( 0,  0);
+					glVertex2i( 0, ty);
+					glVertex2i(tx, ty);
+					glVertex2i(tx,  0);
+				glEnd();
+				glPopMatrix();
+			}
+			if (lev.arr[row][col] == '2') {
+				glColor3f(0.4, 0.9, 0.7);
+				glPushMatrix();
+				glTranslated((Flt)j*dd+offx, (Flt)i*lev.ftsz[1]+offy, 0);
+				glBindTexture(GL_TEXTURE_2D, gl.platesTexture);
 				glBegin(GL_QUADS);
 					glVertex2i( 0,  0);
 					glVertex2i( 0, ty);
@@ -976,8 +1028,8 @@ void render(void)
 	#endif
 	//
 	//
-	float h = 100.0;		// changed size of character 200.0 is original size
-	float w = h * 0.4;		// 0.5 is the original size
+	float h = 65.0;		// changed size of character 200.0 is original size       ||60.0
+	float w = h * 0.3;		// 0.5 is the original size				||0.3
 	glPushMatrix();
 	glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
@@ -1068,6 +1120,7 @@ void render(void)
 	if (gl.movie) {
 		screenCapture();
 	}
+	
 }
 
 
