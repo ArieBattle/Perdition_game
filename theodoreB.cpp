@@ -84,7 +84,7 @@ void sound_test()
     }
     for (int i=0; i<4; i++) {
         alSourcePlay(alSource);
-        usleep(250000);
+        usleep(500000);
     }
     //Cleanup.
     //First delete the source.
