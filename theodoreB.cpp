@@ -7,7 +7,7 @@
 #include <math.h>
 #include <GL/glx.h>
 #include "fonts.h"
-//Sound library
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
