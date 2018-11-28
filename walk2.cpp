@@ -14,7 +14,7 @@
 //  parallax scrolling of backgrounds
 //
 #include <stdio.h>
-
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
