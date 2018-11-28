@@ -14,6 +14,7 @@
 //  parallax scrolling of backgrounds
 //
 #include <stdio.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -26,6 +27,7 @@
 //#include "ppm.h"
 #include "fonts.h"
 #include </usr/include/AL/alut.h> //Added Sound Function
+
 //defined types
 typedef double Flt;
 typedef double Vec[3];
