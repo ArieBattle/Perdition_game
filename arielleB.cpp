@@ -223,7 +223,6 @@ void collision ()
     }
 }*/
 
-}
 
 /*void jump (const float gravity, const float timeslice)
   {
