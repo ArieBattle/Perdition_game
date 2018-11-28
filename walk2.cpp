@@ -50,16 +50,6 @@ const float gravity = -0.4f;
 #define ALPHA 1
 
 //function prototypes
-
-typedef struct t_mouse {
-    int eventType;
-    int lbutton;
-    int rbutton;
-    int x;
-    int y;
-} Mouse;
-
-
 bool push_start = false;
 void initOpengl();
 void checkMouse(XEvent *e);
@@ -92,7 +82,6 @@ class Timers {
 		void recordTime(struct timespec *t) {
 			clock_gettime(CLOCK_REALTIME, t);
 		}
-
 } timers;
 //-----------------------------------------------------------------------------
 
@@ -117,25 +106,25 @@ class Enem {
 
 		}
 };
-Enem *enem;
+Enem *enemy1;
 
 class Body {
 	public:
-	int width;
-	int height;
-	int positionX;
-	int positionY;
-	float velocityX;
-	float velocityY;
-	Body()
-	{
-		width = 40;
-		height = 140;
-		positionY = 0;
-		positionX = 0;
-		velocityX = 0.0f;
-	       	velocityY = 0.0f;
-	}
+		int width;
+		int height;
+		int positionX;
+		int positionY;
+		float velocityX;
+		float velocityY;
+		Body()
+		{
+			width = 50;
+			height = 150;
+			positionY = 0;
+			positionX = 0;
+			velocityX = 0.0f;
+			velocityY = 0.0f;
+		}
 };
 Body *player;
 
@@ -179,7 +168,6 @@ class Global {
 		GLuint goblinTexture;
 		GLuint settings_icon_Texture;
 		GLuint perditionTexture;
-		GLuint bloodsplatterTexture;
 		Vec box[20];
 		Sprite exp;
 		Sprite exp44;
@@ -295,12 +283,10 @@ class Level {
 				++p;
 			}
 		}
-
 } lev;
 
 //X Windows variables
 class X11_wrapper {
-
 	private:
 		Display *dpy;
 		Window win;
@@ -432,7 +418,7 @@ class Image {
 				unlink(ppmname);
 		}
 };
-Image img[13] = {
+Image img[12] = {
 	"./images/walk.gif",
 	"./images/exp.png",
 	"./images/exp44.png",
@@ -444,16 +430,16 @@ Image img[13] = {
 	"./images/enemy1.png",
 	"./images/goblin.png",
 	"./images/settings_icon.png",
-	"./images/perdition.png",
-	"./images/bloodsplatter.png"};
-
+	"./images/perdition.png"};
 
 
 int main(void)
 {
+
 	initOpengl();
 	init();
 	player = new Body();
+	enemy1 = new Enem();
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -465,39 +451,39 @@ int main(void)
 		collisions(player);
 		render();
 		x11.swapBuffers();
-    cleanup_fonts();
-  }
-    return 0;
+	}
+	cleanup_fonts();
+	return 0;
 }
 
 unsigned char *buildAlphaData(Image *img)
 {
-    //add 4th component to RGB stream...
-    int i;
-    unsigned char *newdata, *ptr;
-    unsigned char *data = (unsigned char *)img->data;
-    newdata = (unsigned char *)malloc(img->width * img->height * 4);
-    ptr = newdata;
-    unsigned char a,b,c;
-    //use the first pixel in the image as the transparent color.
-    unsigned char t0 = *(data+0);
-    unsigned char t1 = *(data+1);
-    unsigned char t2 = *(data+2);
-    for (i=0; i<img->width * img->height * 3; i+=3) {
-	a = *(data+0);
-	b = *(data+1);
-	c = *(data+2);
-	*(ptr+0) = a;
-	*(ptr+1) = b;
-	*(ptr+2) = c;
-	*(ptr+3) = 1;
-	if (a==t0 && b==t1 && c==t2)
-	    *(ptr+3) = 0;
-	//-----------------------------------------------
-	ptr += 4;
-	data += 3;
-    }
-    return newdata;
+	//add 4th component to RGB stream...
+	int i;
+	unsigned char *newdata, *ptr;
+	unsigned char *data = (unsigned char *)img->data;
+	newdata = (unsigned char *)malloc(img->width * img->height * 4);
+	ptr = newdata;
+	unsigned char a,b,c;
+	//use the first pixel in the image as the transparent color.
+	unsigned char t0 = *(data+0);
+	unsigned char t1 = *(data+1);
+	unsigned char t2 = *(data+2);
+	for (i=0; i<img->width * img->height * 3; i+=3) {
+		a = *(data+0);
+		b = *(data+1);
+		c = *(data+2);
+		*(ptr+0) = a;
+		*(ptr+1) = b;
+		*(ptr+2) = c;
+		*(ptr+3) = 1;
+		if (a==t0 && b==t1 && c==t2)
+			*(ptr+3) = 0;
+		//-----------------------------------------------
+		ptr += 4;
+		data += 3;
+	}
+	return newdata;
 }
 
 void initOpengl(void)
@@ -644,23 +630,6 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_p, h_p, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[11].data);
 	//--------------------------------------------------------------------------- 
-	
-	glGenTextures(1, &gl.bloodsplatterTexture);
-	//-------------------------------------------------------------------------
-	//jeremy texture
-	//
-	int w_bs = img[12].width;
-	int h_bs = img[12].height;
-	//
-	glBindTexture(GL_TEXTURE_2D, gl.bloodsplatterTexture);
-	//
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_bs, h_bs, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[12].data);
-	//-------------------------------------------------------------------------
-
-	
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -731,7 +700,6 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, xData);
 	free(xData);
-
 }
 
 void init() {
@@ -773,7 +741,6 @@ void checkMouse(XEvent *e)
 			savey = e->xbutton.y;
 		}
 	}
-
 }
 
 void screenCapture()
@@ -809,12 +776,8 @@ void screenCapture()
 		system(s);
 		unlink(ts);
 	}
-	fclose(fpo);
-	char s[256];
-	sprintf(s, "convert ./vid/pic%03i.ppm ./vid/pic%03i.gif", fnum, fnum);
-	system(s);
-	unlink(ts);
-    }
+	++fnum;
+}
 
 int checkKeys(XEvent *e)
 {
@@ -847,13 +810,6 @@ int checkKeys(XEvent *e)
 		case XK_w:
 			timers.recordTime(&timers.walkTime);
 			gl.walk ^= 1;
-			
-			/*
-			extern void Rcollision(int x, int y,Body *p, Enem *e, GLuint texid);
-			
-			if (gl.keys[XK_w]) {
-			Rcollision(1600/2, 1300/2, player, enem, gl.bloodsplatterTexture);
-			}*/
 			break;
 		case XK_e:
 			exit(0);
@@ -865,9 +821,9 @@ int checkKeys(XEvent *e)
 			timers.recordTime(&gl.exp44.time);
 			gl.exp44.onoff ^= 1;
 			break;
-       case XK_n:
-            extern void sound_test();
-	    break;
+		case XK_n:
+			extern void sound_test();
+			break;
 		case XK_Left:
 			player->positionX -= 5;
 			break;
@@ -899,32 +855,32 @@ int checkKeys(XEvent *e)
 			gl.helpTab ^= 1;
 			break;	
 		case XK_space:
-			//if spacebar is hit jump (?)
-			if (player->positionY < 300)
 			if (gl.keys[XK_space]) {
 				extern void jump(Body *p);
 				jump(player);
 			}
 			break;
 	}
+	return 0;
+}
 
 Flt VecNormalize(Vec vec)
 {
-    Flt len, tlen;
-    Flt xlen = vec[0];
-    Flt ylen = vec[1];
-    Flt zlen = vec[2];
-    len = xlen*xlen + ylen*ylen + zlen*zlen;
-    if (len == 0.0) {
-	MakeVector(vec, 0.0, 0.0, 1.0);
-	return 1.0;
-    }
-    len = sqrt(len);
-    tlen = 1.0 / len;
-    vec[0] = xlen * tlen;
-    vec[1] = ylen * tlen;
-    vec[2] = zlen * tlen;
-    return(len);
+	Flt len, tlen;
+	Flt xlen = vec[0];
+	Flt ylen = vec[1];
+	Flt zlen = vec[2];
+	len = xlen*xlen + ylen*ylen + zlen*zlen;
+	if (len == 0.0) {
+		MakeVector(vec, 0.0, 0.0, 1.0);
+		return 1.0;
+	}
+	len = sqrt(len);
+	tlen = 1.0 / len;
+	vec[0] = xlen * tlen;
+	vec[1] = ylen * tlen;
+	vec[2] = zlen * tlen;
+	return(len);
 }
 
 void collisions(Body *player)
@@ -935,7 +891,6 @@ void collisions(Body *player)
 	{
 		player->positionY = 0;
 	}
-
 }
 /*
    void cleanupRaindrops() {
@@ -968,6 +923,7 @@ void collisions(Body *player)
 
 void render(void)
 {	
+
 	if(!push_start)	{
 
 		extern void menu(int x, int y);
@@ -1002,7 +958,7 @@ void render(void)
 	} else {
 		Rect r;
 		//Clear the screen
-      		glClearColor(0.1, 0.1, 0.1, 1.0);
+		glClearColor(0.1, 0.1, 0.1, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		extern void showBackground(int x, int y, GLuint texid);
@@ -1029,94 +985,85 @@ void render(void)
 			return;
 		}
 
+
+
 		//float cx = gl.xres/2.0;
 		//float cy = gl.yres/2.0;
 		//
 
 
-	//
-	//this is for the player
+		//
+		//this is for the player
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glTranslatef(player->positionX+100, player->positionY+100, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
 
-	glPushMatrix();
-	glColor3f(1.0, 1.0, 1.0);
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.0f);
-	glTranslatef(player->positionX+100, player->positionY+115, 0.0f);
-	glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
-	
-	//added for other walking pics	
-	int ix = gl.walkFrame % 8;
-	int iy = 0;
-	if (gl.walkFrame >= 8)
-	    iy = 1;
-	float fx = (float)ix / 8.0;
-	float fy = (float)iy / 2.0;
+		//added for other walking pics	
+		int ix = gl.walkFrame % 8;
+		int iy = 0;
+		if (gl.walkFrame >= 8)
+			iy = 1;
+		float fx = (float)ix / 8.0;
+		float fy = (float)iy / 2.0;
 
-	glBegin(GL_QUADS);
+		glBegin(GL_QUADS);
 
-	if (gl.keys[XK_Left]) {
-		glTexCoord2f(fx+.125, fy+.5); glVertex2i(-player->width, -player->height);
-		glTexCoord2f(fx+.125, fy);    glVertex2i(-player->width, player->height);
-		glTexCoord2f(fx, fy);    glVertex2i(player->width, player->height);
-		glTexCoord2f(fx, fy+.5); glVertex2i(player->width, -player->height);
-	} else {
-		glTexCoord2f(fx, fy+.5); glVertex2i(-player->width, -player->height);
-		glTexCoord2f(fx, fy);    glVertex2i(-player->width, player->height);
-		glTexCoord2f(fx+.125, fy);    glVertex2i(player->width, player->height);
-		glTexCoord2f(fx+.125, fy+.5); glVertex2i(player->width, -player->height);
+		if (gl.keys[XK_Left]) {
+			glTexCoord2f(fx+.125, fy+.5); glVertex2i(-player->width, -player->height);
+			glTexCoord2f(fx+.125, fy);    glVertex2i(-player->width, player->height);
+			glTexCoord2f(fx, fy);    glVertex2i(player->width, player->height);
+			glTexCoord2f(fx, fy+.5); glVertex2i(player->width, -player->height);
+		} else {
+			glTexCoord2f(fx, fy+.5); glVertex2i(-player->width, -player->height);
+			glTexCoord2f(fx, fy);    glVertex2i(-player->width, player->height);
+			glTexCoord2f(fx+.125, fy);    glVertex2i(player->width, player->height);
+			glTexCoord2f(fx+.125, fy+.5); glVertex2i(player->width, -player->height);
 		}
 
-/*
-	glTexCoord2f(0.0f, 1.0f); glVertex2i(-player->width, -player->height);
-	glTexCoord2f(0.0f, 0.0f); glVertex2i(-player->width, player->height);
-	glTexCoord2f(0.125f, 0.0f); glVertex2i(player->width, player->height);
-	glTexCoord2f(0.125f, 1.0f); glVertex2i(player->width, -player->height);*/
-	glEnd();
-	glPopMatrix();
+		/*
+		   glTexCoord2f(0.0f, 1.0f); glVertex2i(-player->width, -player->height);
+		   glTexCoord2f(0.0f, 0.0f); glVertex2i(-player->width, player->height);
+		   glTexCoord2f(0.125f, 0.0f); glVertex2i(player->width, player->height);
+		   glTexCoord2f(0.125f, 1.0f); glVertex2i(player->width, -player->height);*/
+		glEnd();
+		glPopMatrix();
 
-/*
-	//this is for the enemies
-	glPushMatrix();
-	glColor3f(1.0, 1.0, 1.0);
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.0f);
-	glTranslatef(enem->posX, enem->posY, 0.0f);
-	glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
-	glTexCoord2f(0.0f, 1.0f); glVertex2i(-enem->wid, -enem->hgt);
-	glTexCoord2f(0.0f, 0.0f); glVertex2i(-enem->wid, enem->hgt);
-	glTexCoord2f(0.125f, 0.0f); glVertex2i(enem->wid, enem->hgt);
-	glTexCoord2f(0.125f, 1.0f); glVertex2i(enem->wid, -enem->hgt);
-	glEnd();
-	glPopMatrix();
+		//this is for the enemies
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glTranslatef(enemy1->posX, enemy1->posY, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
+		glTexCoord2f(0.125f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
+		glTexCoord2f(0.125f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
+		glEnd();
+		glPopMatrix();
 
 
-	
-	//move enemy back and fourth on screen
-	extern void moveEnemy(Enem *e);
-	moveEnemy(enem);
+		//show enemy	
+		extern void showEnemy1(int x, int y, GLuint Texid);
+		showEnemy1(500, 30, gl.enemy1Texture);
 
-	//show enemies	
-	//extern void showEnemy1(int x, int y, GLuint Texid);
-	//showEnemy1(500, 30, gl.enemy1Texture);
+		extern void showGoblin(int x, int y, GLuint Texid);
+		showGoblin(700, 30, gl.goblinTexture);
 
-	extern void showGoblin(int x, int y, GLuint Texid);
-	showGoblin(700, 30, gl.goblinTexture);
-*/
-
-	r.bot = gl.yres - 20;
-	r.left = 10;
-	r.center = 0;
-	ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
-	ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
-	ggprint8b(&r, 16, 0x00ffff44, "w    	Collision");
-	ggprint8b(&r, 16, 0x00ffff44, "E        Exit");
-	ggprint8b(&r, 16, 0x00ffff44, "N        Sound Test");
-
-	if (gl.movie) {
-	    screenCapture();
+		r.bot = gl.yres - 20;
+		r.left = 10;
+		r.center = 0;
+		ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
+		ggprint8b(&r, 16, 0x00ffff44, "N    	Sound Test");
+		ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
+		ggprint8b(&r, 16, 0x00ffff44, "E	Exit");
+		if (gl.movie) {
+			screenCapture();
+		}
 	}
-	}
-
 }
 
 
