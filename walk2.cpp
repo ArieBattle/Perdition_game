@@ -50,15 +50,25 @@ const float gravity = -0.2f;
 #define ALPHA 1
 
 //function prototypes
+
+
+
+
+
+
+
+
+
+
+
 void initOpengl();
 void checkMouse(XEvent *e);
 int checkKeys(XEvent *e);
 void init();
 void physics();
 void render();
-
-//extern void functions
 extern void sound_test();
+
 
 //-----------------------------------------------------------------------------
 //Setup timers
