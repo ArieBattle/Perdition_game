@@ -815,8 +815,6 @@ void screenCapture()
 	system(s);
 	unlink(ts);
     }
-    ++fnum;
-}
 
 int checkKeys(XEvent *e)
 {
