@@ -228,8 +228,6 @@ void collision ()
     }
 }*/
 
-}
-
 /*void jump (const float gravity, const float timeslice)
   {
   float positionX; //position of character 
