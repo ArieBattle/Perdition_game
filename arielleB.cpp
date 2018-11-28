@@ -1,16 +1,23 @@
 //Arielle Battle
 //Arielle's game source code
 //Description: my source code contains the function for showing my name, 
+<<<<<<< ArieBattle_branch
 //	       my picture, moving enemy function, in-game background image, 
 //	       collision function and the jump function
+=======
+//	       my picture, and the jump function in the main walk2.cpp file
+>>>>>>> master
 
 #include "charclass.h"	//store class for character to pass reference for jump
 #include "fonts.h"
 #include <GL/glx.h>
 #include <cmath>
 #include <cstdio>
+<<<<<<< ArieBattle_branch
 #include <iostream>
 using namespace std;
+=======
+>>>>>>> master
 
 void ShowArielleName(int x, int y)
 {
@@ -41,6 +48,7 @@ void showAriellePic(int x, int y, GLuint texid)
     glPopMatrix();
 }
 
+<<<<<<< ArieBattle_branch
 void showBackground(int x, int y, GLuint texid)
 {
     glColor3ub(255, 255, 255);
@@ -75,12 +83,23 @@ void moveEnemy(Enem *e)
 
 void showEnemy1(int x, int y, GLuint texid)
 {
+=======
+void showEnemy1(int x, int y, GLuint texid)
+{
+   // static float angle = 0.0f;
+
+>>>>>>> master
     glColor3ub(255, 255, 255);
     int width = 25;
     glPushMatrix();
     glTranslated(x, y, 0);
+<<<<<<< ArieBattle_branch
     glTranslatef(-0.5f, -0.5f, 0.0f);	//move the enemy side to side
     //angle += 1;	//the speed of enemy
+=======
+    glTranslatef(-0.5f, -0.5f, 0.0f);	//rotates the picture
+    //angle += 1;	//the speed of the picture
+>>>>>>> master
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 1.0f); glVertex2i(-width, -width);
@@ -90,12 +109,22 @@ void showEnemy1(int x, int y, GLuint texid)
     glEnd();
     glPopMatrix();
 }
+<<<<<<< ArieBattle_branch
 
 
 void showGoblin(int x, int y, GLuint texid)
 {
     glColor3ub(255, 255, 255);
     int width2 = 25;
+=======
+/*
+void showGoblin(int x, int y, GLuint texid)
+{
+    //static float angle = 0.0f;
+
+    glColor3ub(255, 255, 255);
+    int width2 = 20;
+>>>>>>> master
     glPushMatrix();
     glTranslated(x, y, 0);
     //glRotatef(angle2, 0.0f, 0.0f, 1.0f);	//rotates the picture
@@ -109,7 +138,11 @@ void showGoblin(int x, int y, GLuint texid)
     glEnd();
     glPopMatrix();
 }
+<<<<<<< ArieBattle_branch
 
+=======
+*/
+>>>>>>> master
 void menu (int x, int y)
 {
     Rect a;
@@ -117,6 +150,10 @@ void menu (int x, int y)
     Rect c;
     Rect d;
 
+<<<<<<< ArieBattle_branch
+=======
+
+>>>>>>> master
     a.bot = y;
     a.left = x + 280;
     a.center = 1;
@@ -137,6 +174,7 @@ void menu (int x, int y)
     ggprint8b(&b, 40, 0x00ffff44, "PRESS S TO START");
     ggprint8b(&c, 40, 0x00ffff44, "PRESS E TO EXIT");
     ggprint8b(&d, 40, 0x00ffff44, "PRESS C FOR CREDITS");
+<<<<<<< ArieBattle_branch
 
 }
 
@@ -227,3 +265,29 @@ void collision ()
 
     }
 }*/
+=======
+}
+
+/*void jump (const float gravity, const float timeslice)
+  {
+  float positionX; //position of character 
+  float positionY; //position of character
+  float velocityX; 
+  float velocityY = -12.0f; //should make jump same height each jump
+//float gravity = 0.5f;
+do
+{
+positionX += velocityX * timeslice; //make h.v. to x position
+positionY += velocityY * timeslice; //make v.v. to x pos
+velocityY += gravity * timeslice; //apply gravity to come back down
+}while (getchar() != 32 || getchar() != ' ');
+}*/
+
+/*void init_opengl(int x, int y)
+  {
+  }*/
+/*void ccollision ()
+  {
+
+  }*/
+>>>>>>> master

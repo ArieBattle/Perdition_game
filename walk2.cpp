@@ -50,6 +50,16 @@ const float gravity = -0.4f;
 #define ALPHA 1
 
 //function prototypes
+
+typedef struct t_mouse {
+    int eventType;
+    int lbutton;
+    int rbutton;
+    int x;
+    int y;
+} Mouse;
+
+
 bool push_start = false;
 void initOpengl();
 void checkMouse(XEvent *e);
@@ -82,6 +92,7 @@ class Timers {
 		void recordTime(struct timespec *t) {
 			clock_gettime(CLOCK_REALTIME, t);
 		}
+
 } timers;
 //-----------------------------------------------------------------------------
 
@@ -284,10 +295,12 @@ class Level {
 				++p;
 			}
 		}
+
 } lev;
 
 //X Windows variables
 class X11_wrapper {
+
 	private:
 		Display *dpy;
 		Window win;
@@ -435,9 +448,9 @@ Image img[13] = {
 	"./images/bloodsplatter.png"};
 
 
+
 int main(void)
 {
-
 	initOpengl();
 	init();
 	player = new Body();
@@ -452,39 +465,39 @@ int main(void)
 		collisions(player);
 		render();
 		x11.swapBuffers();
-	}
-	cleanup_fonts();
-	return 0;
+    cleanup_fonts();
+  }
+    return 0;
 }
 
 unsigned char *buildAlphaData(Image *img)
 {
-	//add 4th component to RGB stream...
-	int i;
-	unsigned char *newdata, *ptr;
-	unsigned char *data = (unsigned char *)img->data;
-	newdata = (unsigned char *)malloc(img->width * img->height * 4);
-	ptr = newdata;
-	unsigned char a,b,c;
-	//use the first pixel in the image as the transparent color.
-	unsigned char t0 = *(data+0);
-	unsigned char t1 = *(data+1);
-	unsigned char t2 = *(data+2);
-	for (i=0; i<img->width * img->height * 3; i+=3) {
-		a = *(data+0);
-		b = *(data+1);
-		c = *(data+2);
-		*(ptr+0) = a;
-		*(ptr+1) = b;
-		*(ptr+2) = c;
-		*(ptr+3) = 1;
-		if (a==t0 && b==t1 && c==t2)
-			*(ptr+3) = 0;
-		//-----------------------------------------------
-		ptr += 4;
-		data += 3;
-	}
-	return newdata;
+    //add 4th component to RGB stream...
+    int i;
+    unsigned char *newdata, *ptr;
+    unsigned char *data = (unsigned char *)img->data;
+    newdata = (unsigned char *)malloc(img->width * img->height * 4);
+    ptr = newdata;
+    unsigned char a,b,c;
+    //use the first pixel in the image as the transparent color.
+    unsigned char t0 = *(data+0);
+    unsigned char t1 = *(data+1);
+    unsigned char t2 = *(data+2);
+    for (i=0; i<img->width * img->height * 3; i+=3) {
+	a = *(data+0);
+	b = *(data+1);
+	c = *(data+2);
+	*(ptr+0) = a;
+	*(ptr+1) = b;
+	*(ptr+2) = c;
+	*(ptr+3) = 1;
+	if (a==t0 && b==t1 && c==t2)
+	    *(ptr+3) = 0;
+	//-----------------------------------------------
+	ptr += 4;
+	data += 3;
+    }
+    return newdata;
 }
 
 void initOpengl(void)
@@ -718,6 +731,7 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, xData);
 	free(xData);
+
 }
 
 void init() {
@@ -759,6 +773,7 @@ void checkMouse(XEvent *e)
 			savey = e->xbutton.y;
 		}
 	}
+
 }
 
 void screenCapture()
@@ -794,7 +809,13 @@ void screenCapture()
 		system(s);
 		unlink(ts);
 	}
-	++fnum;
+	fclose(fpo);
+	char s[256];
+	sprintf(s, "convert ./vid/pic%03i.ppm ./vid/pic%03i.gif", fnum, fnum);
+	system(s);
+	unlink(ts);
+    }
+    ++fnum;
 }
 
 int checkKeys(XEvent *e)
@@ -846,6 +867,9 @@ int checkKeys(XEvent *e)
 			timers.recordTime(&gl.exp44.time);
 			gl.exp44.onoff ^= 1;
 			break;
+       case XK_n:
+            extern void sound_test();
+	    break;
 		case XK_Left:
 			player->positionX -= 5;
 			break;
@@ -883,29 +907,26 @@ int checkKeys(XEvent *e)
 				extern void jump(Body *p);
 				jump(player);
 			}
-
 			break;
 	}
-	return 0;
-}
 
 Flt VecNormalize(Vec vec)
 {
-	Flt len, tlen;
-	Flt xlen = vec[0];
-	Flt ylen = vec[1];
-	Flt zlen = vec[2];
-	len = xlen*xlen + ylen*ylen + zlen*zlen;
-	if (len == 0.0) {
-		MakeVector(vec, 0.0, 0.0, 1.0);
-		return 1.0;
-	}
-	len = sqrt(len);
-	tlen = 1.0 / len;
-	vec[0] = xlen * tlen;
-	vec[1] = ylen * tlen;
-	vec[2] = zlen * tlen;
-	return(len);
+    Flt len, tlen;
+    Flt xlen = vec[0];
+    Flt ylen = vec[1];
+    Flt zlen = vec[2];
+    len = xlen*xlen + ylen*ylen + zlen*zlen;
+    if (len == 0.0) {
+	MakeVector(vec, 0.0, 0.0, 1.0);
+	return 1.0;
+    }
+    len = sqrt(len);
+    tlen = 1.0 / len;
+    vec[0] = xlen * tlen;
+    vec[1] = ylen * tlen;
+    vec[2] = zlen * tlen;
+    return(len);
 }
 
 void collisions(Body *player)
@@ -916,6 +937,7 @@ void collisions(Body *player)
 	{
 		player->positionY = 0;
 	}
+
 }
 /*
    void cleanupRaindrops() {
@@ -948,7 +970,6 @@ void collisions(Body *player)
 
 void render(void)
 {	
-
 	if(!push_start)	{
 
 		extern void menu(int x, int y);
@@ -1010,8 +1031,6 @@ void render(void)
 			return;
 		}
 
-
-
 		//float cx = gl.xres/2.0;
 		//float cy = gl.yres/2.0;
 		//
@@ -1019,6 +1038,7 @@ void render(void)
 
 	//
 	//this is for the player
+
 	glPushMatrix();
 	glColor3f(1.0, 1.0, 1.0);
 	glEnable(GL_ALPHA_TEST);
@@ -1030,7 +1050,7 @@ void render(void)
 	int ix = gl.walkFrame % 8;
 	int iy = 0;
 	if (gl.walkFrame >= 8)
-		iy = 1;
+	    iy = 1;
 	float fx = (float)ix / 8.0;
 	float fy = (float)iy / 2.0;
 
@@ -1084,6 +1104,7 @@ void render(void)
 	extern void showGoblin(int x, int y, GLuint Texid);
 	showGoblin(700, 30, gl.goblinTexture);
 */
+
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
@@ -1091,10 +1112,13 @@ void render(void)
 	ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
 	ggprint8b(&r, 16, 0x00ffff44, "w    	Collision");
 	ggprint8b(&r, 16, 0x00ffff44, "E        Exit");
+	ggprint8b(&r, 16, 0x00ffff44, "N        Sound Test");
+
 	if (gl.movie) {
-		screenCapture();
+	    screenCapture();
 	}
 	}
+
 }
 
 
