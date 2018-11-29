@@ -24,6 +24,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "log.h"
+#include "charclass.h"
 //#include "ppm.h"
 #include "fonts.h"
 
@@ -87,45 +88,9 @@ class Timers {
 
 class Image;
 
-class Enem {
-	public:
-		int wid;
-		int hgt;
-		int posX;
-		int posY;
-		float velX;
-		float velY;
-		Enem() 
-		{
-			wid = 25;
-			hgt = 50;
-			posX = 0;
-			posY = 0;
-			velY = 0.0f;
-			velX = 0.0f;
 
-		}
-};
+Enem *enemy2;
 Enem *enemy1;
-
-class Body {
-	public:
-		int width;
-		int height;
-		int positionX;
-		int positionY;
-		float velocityX;
-		float velocityY;
-		Body()
-		{
-			width = 50;
-			height = 150;
-			positionY = 0;
-			positionX = 0;
-			velocityX = 0.0f;
-			velocityY = 0.0f;
-		}
-};
 Body *player;
 
 class Sprite {
@@ -168,6 +133,7 @@ class Global {
 		GLuint goblinTexture;
 		GLuint settings_icon_Texture;
 		GLuint perditionTexture;
+		GLuint gameoverTexture;
 		Vec box[20];
 		Sprite exp;
 		Sprite exp44;
@@ -418,7 +384,7 @@ class Image {
 				unlink(ppmname);
 		}
 };
-Image img[12] = {
+Image img[13] = {
 	"./images/walk.gif",
 	"./images/exp.png",
 	"./images/exp44.png",
@@ -430,16 +396,19 @@ Image img[12] = {
 	"./images/enemy1.png",
 	"./images/goblin.png",
 	"./images/settings_icon.png",
-	"./images/perdition.png"};
+	"./images/perdition.png",
+	"./images/gameover.png"};
 
 
 int main(void)
 {
 
+	extern void moveEnemy(Enem *e1);
 	initOpengl();
 	init();
 	player = new Body();
 	enemy1 = new Enem();
+	enemy2 = new Enem();
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -450,6 +419,18 @@ int main(void)
 		}
 		collisions(player);
 		render();
+		moveEnemy(enemy1);
+		moveEnemy(enemy2);
+	double answer;	
+		extern double collision(double answer, Body *p, Enem *e);
+
+		collision(answer, player, enemy1);
+		collision(answer, player, enemy2);
+		if(answer == 0)
+		{
+			extern void gameover(int x, int y, GLuint texid);
+			gameover(1600/2, 1300/2, gl.gameoverTexture);
+		}
 		x11.swapBuffers();
 	}
 	cleanup_fonts();
@@ -629,6 +610,20 @@ void initOpengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_p, h_p, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[11].data);
+	//--------------------------------------------------------------------------- 
+	//gameover texture - 
+
+	glGenTextures(1, &gl.perditionTexture);
+	//-------------------------------------------------------------------------
+	int w_g = img[12].width;
+	int h_g = img[12].height;
+	//
+	glBindTexture(GL_TEXTURE_2D, gl.gameoverTexture);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_g, h_g, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[12].data);
 	//--------------------------------------------------------------------------- 
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
@@ -998,7 +993,7 @@ void render(void)
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(player->positionX+100, player->positionY+100, 0.0f);
+		glTranslatef(player->positionX+100, player->positionY+115, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
 
 		//added for other walking pics	
@@ -1031,28 +1026,44 @@ void render(void)
 		glEnd();
 		glPopMatrix();
 
-		//this is for the enemies
+		//this is for the enemy1
 		glPushMatrix();
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
 		glTranslatef(enemy1->posX, enemy1->posY, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+		glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
 		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
-		glTexCoord2f(0.125f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
-		glTexCoord2f(0.125f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
 		glEnd();
 		glPopMatrix();
 
+	//this is for the enemy2
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glTranslatef(enemy2->posX+700, enemy2->posY, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.goblinTexture);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy2->wid, -enemy2->hgt);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy2->wid, enemy2->hgt);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy2->wid, enemy2->hgt);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy2->wid, -enemy2->hgt);
+		glEnd();
+		glPopMatrix();
 
+/*
 		//show enemy	
 		extern void showEnemy1(int x, int y, GLuint Texid);
 		showEnemy1(500, 30, gl.enemy1Texture);
 
 		extern void showGoblin(int x, int y, GLuint Texid);
 		showGoblin(700, 30, gl.goblinTexture);
-
+*/
 		r.bot = gl.yres - 20;
 		r.left = 10;
 		r.center = 0;
