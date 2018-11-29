@@ -26,7 +26,7 @@
 #include "log.h"
 //#include "ppm.h"
 #include "fonts.h"
-
+#include </usr/include/AL/alut.h> //Sound Function Added
 using namespace std;
 //defined types
 typedef double Flt;
@@ -67,7 +67,8 @@ int checkKeys(XEvent *e);
 void init();
 void physics();
 void render();
-
+//extern void functions
+extern void sound_test();
 int i = 15;
 int health = 100;
 //-----------------------------------------------------------------------------
@@ -809,13 +810,7 @@ void screenCapture()
 		system(s);
 		unlink(ts);
 	}
-	fclose(fpo);
-	char s[256];
-	sprintf(s, "convert ./vid/pic%03i.ppm ./vid/pic%03i.gif", fnum, fnum);
-	system(s);
-	unlink(ts);
-    }
-    ++fnum;
+	++fnum;
 }
 
 int checkKeys(XEvent *e)
@@ -849,13 +844,13 @@ int checkKeys(XEvent *e)
 		case XK_w:
 			timers.recordTime(&timers.walkTime);
 			gl.walk ^= 1;
-			
+
 			/*
-			extern void Rcollision(int x, int y,Body *p, Enem *e, GLuint texid);
-			
-			if (gl.keys[XK_w]) {
-			Rcollision(1600/2, 1300/2, player, enem, gl.bloodsplatterTexture);
-			}*/
+			   extern void Rcollision(int x, int y,Body *p, Enem *e, GLuint texid);
+
+			   if (gl.keys[XK_w]) {
+			   Rcollision(1600/2, 1300/2, player, enem, gl.bloodsplatterTexture);
+			   }*/
 			break;
 		case XK_e:
 			exit(0);
@@ -867,9 +862,9 @@ int checkKeys(XEvent *e)
 			timers.recordTime(&gl.exp44.time);
 			gl.exp44.onoff ^= 1;
 			break;
-       case XK_n:
-            extern void sound_test();
-	    break;
+		case XK_n:
+			sound_test();
+			break;
 		case XK_Left:
 			player->positionX -= 5;
 			break;
@@ -903,30 +898,32 @@ int checkKeys(XEvent *e)
 		case XK_space:
 			//if spacebar is hit jump (?)
 			if (player->positionY < 300)
-			if (gl.keys[XK_space]) {
-				extern void jump(Body *p);
-				jump(player);
-			}
+				if (gl.keys[XK_space]) {
+					extern void jump(Body *p);
+					jump(player);
+				}
 			break;
 	}
+	return 0;
+}
 
 Flt VecNormalize(Vec vec)
 {
-    Flt len, tlen;
-    Flt xlen = vec[0];
-    Flt ylen = vec[1];
-    Flt zlen = vec[2];
-    len = xlen*xlen + ylen*ylen + zlen*zlen;
-    if (len == 0.0) {
-	MakeVector(vec, 0.0, 0.0, 1.0);
-	return 1.0;
-    }
-    len = sqrt(len);
-    tlen = 1.0 / len;
-    vec[0] = xlen * tlen;
-    vec[1] = ylen * tlen;
-    vec[2] = zlen * tlen;
-    return(len);
+	Flt len, tlen;
+	Flt xlen = vec[0];
+	Flt ylen = vec[1];
+	Flt zlen = vec[2];
+	len = xlen*xlen + ylen*ylen + zlen*zlen;
+	if (len == 0.0) {
+		MakeVector(vec, 0.0, 0.0, 1.0);
+		return 1.0;
+	}
+	len = sqrt(len);
+	tlen = 1.0 / len;
+	vec[0] = xlen * tlen;
+	vec[1] = ylen * tlen;
+	vec[2] = zlen * tlen;
+	return(len);
 }
 
 void collisions(Body *player)
@@ -1004,7 +1001,7 @@ void render(void)
 	} else {
 		Rect r;
 		//Clear the screen
-      		glClearColor(0.1, 0.1, 0.1, 1.0);
+		glClearColor(0.1, 0.1, 0.1, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		extern void showBackground(int x, int y, GLuint texid);
@@ -1036,92 +1033,88 @@ void render(void)
 		//
 
 
-	//
-	//this is for the player
+		//
+		//this is for the player
 
-	glPushMatrix();
-	glColor3f(1.0, 1.0, 1.0);
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.0f);
-	glTranslatef(player->positionX+100, player->positionY+115, 0.0f);
-	glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
-	
-	//added for other walking pics	
-	int ix = gl.walkFrame % 8;
-	int iy = 0;
-	if (gl.walkFrame >= 8)
-	    iy = 1;
-	float fx = (float)ix / 8.0;
-	float fy = (float)iy / 2.0;
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glTranslatef(player->positionX+100, player->positionY+115, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
 
-	glBegin(GL_QUADS);
+		//added for other walking pics	
+		int ix = gl.walkFrame % 8;
+		int iy = 0;
+		if (gl.walkFrame >= 8)
+			iy = 1;
+		float fx = (float)ix / 8.0;
+		float fy = (float)iy / 2.0;
 
-	if (gl.keys[XK_Left]) {
-		glTexCoord2f(fx+.125, fy+.5); glVertex2i(-player->width, -player->height);
-		glTexCoord2f(fx+.125, fy);    glVertex2i(-player->width, player->height);
-		glTexCoord2f(fx, fy);    glVertex2i(player->width, player->height);
-		glTexCoord2f(fx, fy+.5); glVertex2i(player->width, -player->height);
-	} else {
-		glTexCoord2f(fx, fy+.5); glVertex2i(-player->width, -player->height);
-		glTexCoord2f(fx, fy);    glVertex2i(-player->width, player->height);
-		glTexCoord2f(fx+.125, fy);    glVertex2i(player->width, player->height);
-		glTexCoord2f(fx+.125, fy+.5); glVertex2i(player->width, -player->height);
+		glBegin(GL_QUADS);
+
+		if (gl.keys[XK_Left]) {
+			glTexCoord2f(fx+.125, fy+.5); glVertex2i(-player->width, -player->height);
+			glTexCoord2f(fx+.125, fy);    glVertex2i(-player->width, player->height);
+			glTexCoord2f(fx, fy);    glVertex2i(player->width, player->height);
+			glTexCoord2f(fx, fy+.5); glVertex2i(player->width, -player->height);
+		} else {
+			glTexCoord2f(fx, fy+.5); glVertex2i(-player->width, -player->height);
+			glTexCoord2f(fx, fy);    glVertex2i(-player->width, player->height);
+			glTexCoord2f(fx+.125, fy);    glVertex2i(player->width, player->height);
+			glTexCoord2f(fx+.125, fy+.5); glVertex2i(player->width, -player->height);
 		}
 
-/*
-	glTexCoord2f(0.0f, 1.0f); glVertex2i(-player->width, -player->height);
-	glTexCoord2f(0.0f, 0.0f); glVertex2i(-player->width, player->height);
-	glTexCoord2f(0.125f, 0.0f); glVertex2i(player->width, player->height);
-	glTexCoord2f(0.125f, 1.0f); glVertex2i(player->width, -player->height);*/
-	glEnd();
-	glPopMatrix();
+		/*
+		   glTexCoord2f(0.0f, 1.0f); glVertex2i(-player->width, -player->height);
+		   glTexCoord2f(0.0f, 0.0f); glVertex2i(-player->width, player->height);
+		   glTexCoord2f(0.125f, 0.0f); glVertex2i(player->width, player->height);
+		   glTexCoord2f(0.125f, 1.0f); glVertex2i(player->width, -player->height);*/
+		glEnd();
+		glPopMatrix();
 
-/*
-	//this is for the enemies
-	glPushMatrix();
-	glColor3f(1.0, 1.0, 1.0);
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.0f);
-	glTranslatef(enem->posX, enem->posY, 0.0f);
-	glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
-	glTexCoord2f(0.0f, 1.0f); glVertex2i(-enem->wid, -enem->hgt);
-	glTexCoord2f(0.0f, 0.0f); glVertex2i(-enem->wid, enem->hgt);
-	glTexCoord2f(0.125f, 0.0f); glVertex2i(enem->wid, enem->hgt);
-	glTexCoord2f(0.125f, 1.0f); glVertex2i(enem->wid, -enem->hgt);
-	glEnd();
-	glPopMatrix();
+		/*
+		//this is for the enemies
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glTranslatef(enem->posX, enem->posY, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enem->wid, -enem->hgt);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enem->wid, enem->hgt);
+		glTexCoord2f(0.125f, 0.0f); glVertex2i(enem->wid, enem->hgt);
+		glTexCoord2f(0.125f, 1.0f); glVertex2i(enem->wid, -enem->hgt);
+		glEnd();
+		glPopMatrix();
 
 
-	
-	//move enemy back and fourth on screen
-	extern void moveEnemy(Enem *e);
-	moveEnemy(enem);
 
-	//show enemies	
-	//extern void showEnemy1(int x, int y, GLuint Texid);
-	//showEnemy1(500, 30, gl.enemy1Texture);
+		//move enemy back and fourth on screen
+		extern void moveEnemy(Enem *e);
+		moveEnemy(enem);
 
-	extern void showGoblin(int x, int y, GLuint Texid);
-	showGoblin(700, 30, gl.goblinTexture);
-*/
+		//show enemies	
+		//extern void showEnemy1(int x, int y, GLuint Texid);
+		//showEnemy1(500, 30, gl.enemy1Texture);
 
-	r.bot = gl.yres - 20;
-	r.left = 10;
-	r.center = 0;
-	ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
-	ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
-	ggprint8b(&r, 16, 0x00ffff44, "w    	Collision");
-	ggprint8b(&r, 16, 0x00ffff44, "E        Exit");
-	ggprint8b(&r, 16, 0x00ffff44, "N        Sound Test");
+		extern void showGoblin(int x, int y, GLuint Texid);
+		showGoblin(700, 30, gl.goblinTexture);
+		*/
 
-	if (gl.movie) {
-	    screenCapture();
+		r.bot = gl.yres - 20;
+		r.left = 10;
+		r.center = 0;
+		ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
+		ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
+		ggprint8b(&r, 16, 0x00ffff44, "w    	Collision");
+		ggprint8b(&r, 16, 0x00ffff44, "E        Exit");
+		ggprint8b(&r, 16, 0x00ffff44, "N        Sound Test");
+
+		if (gl.movie) {
+			screenCapture();
+		}
+
+
 	}
-	}
-
 }
-
-
-
-
-
