@@ -25,6 +25,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "log.h"
+#include "charclass.h"
 //#include "ppm.h"
 #include "fonts.h"
 #include </usr/include/AL/alut.h> //Sound Function Added
