@@ -15,6 +15,7 @@
 //
 #include <stdio.h>
 #include <iostream>
+#include <charclass.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -99,45 +100,8 @@ class Timers {
 
 class Image;
 
-class Enem {
-	public:
-		int wid;
-		int hgt;
-		int posX;
-		int posY;
-		float velX;
-		float velY;
-		Enem() 
-		{
-			wid = 25;
-			hgt = 50;
-			posX = 0;
-			posY = 0;
-			velY = 0.0f;
-			velX = 0.0f;
-
-		}
-};
-Enem *enem;
-
-class Body {
-	public:
-	int width;
-	int height;
-	int positionX;
-	int positionY;
-	float velocityX;
-	float velocityY;
-	Body()
-	{
-		width = 40;
-		height = 140;
-		positionY = 0;
-		positionX = 0;
-		velocityX = 0.0f;
-	       	velocityY = 0.0f;
-	}
-};
+Enem *enemy1;
+Enem *enemy2;
 Body *player;
 
 class Sprite {
@@ -169,6 +133,7 @@ class Global {
 		int helpTab;
 		int showRain;
 		double delay;
+		bool gameover;
 		Image *walkImage;
 		GLuint walkTexture;
 		GLuint mariogm734Texture;
@@ -178,6 +143,7 @@ class Global {
 		GLuint cactusTexture;
 		GLuint enemy1Texture;
 		GLuint goblinTexture;
+		GLuint gameoverTexture;
 		GLuint settings_icon_Texture;
 		GLuint perditionTexture;
 		GLuint bloodsplatterTexture;
@@ -200,6 +166,7 @@ class Global {
 			xres=1600;
 			yres=1300;
 			walk=0;
+			gameover = false;
 			credits =0;
 			settings = 0;
 			walkFrame=0;
@@ -446,7 +413,7 @@ Image img[13] = {
 	"./images/goblin.png",
 	"./images/settings_icon.png",
 	"./images/perdition.png",
-	"./images/bloodsplatter.png"};
+	"./images/gameover.png"};
 
 
 
@@ -455,6 +422,8 @@ int main(void)
 	initOpengl();
 	init();
 	player = new Body();
+	enemy1 = new Enem(200);
+	enemy2 = new Enem(700);
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -465,6 +434,9 @@ int main(void)
 		}
 		collisions(player);
 		render();
+		extern bool collision(Body *p, Enem*e, bool &go);
+		collision(player, enemy1, gl.gameover);
+		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
     cleanup_fonts();
   }
@@ -650,14 +622,14 @@ void initOpengl(void)
 	//-------------------------------------------------------------------------
 	//jeremy texture
 	//
-	int w_bs = img[12].width;
-	int h_bs = img[12].height;
+	int w_g = img[12].width;
+	int h_g = img[12].height;
 	//
-	glBindTexture(GL_TEXTURE_2D, gl.bloodsplatterTexture);
+	glBindTexture(GL_TEXTURE_2D, gl.gameoverTexture);
 	//
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_bs, h_bs, 0,
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_g, h_g, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[12].data);
 	//-------------------------------------------------------------------------
 
@@ -863,7 +835,7 @@ int checkKeys(XEvent *e)
 			gl.exp44.onoff ^= 1;
 			break;
 		case XK_n:
-			sound_test();
+			extern void sound_test();
 			break;
 		case XK_Left:
 			player->positionX -= 5;
@@ -897,7 +869,6 @@ int checkKeys(XEvent *e)
 			break;	
 		case XK_space:
 			//if spacebar is hit jump (?)
-			if (player->positionY < 300)
 				if (gl.keys[XK_space]) {
 					extern void jump(Body *p);
 					jump(player);
@@ -998,7 +969,7 @@ void render(void)
 
 			return;
 		}
-	} else {
+	} else if (gl.gameover == false) {
 		Rect r;
 		//Clear the screen
 		glClearColor(0.1, 0.1, 0.1, 1.0);
@@ -1073,23 +1044,36 @@ void render(void)
 		glEnd();
 		glPopMatrix();
 
-		/*
-		//this is for the enemies
+		
+		//this is for the enemy1
 		glPushMatrix();
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(enem->posX, enem->posY, 0.0f);
+		glTranslatef(enemy1->posX, enemy1->posY+70, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
-		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enem->wid, -enem->hgt);
-		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enem->wid, enem->hgt);
-		glTexCoord2f(0.125f, 0.0f); glVertex2i(enem->wid, enem->hgt);
-		glTexCoord2f(0.125f, 1.0f); glVertex2i(enem->wid, -enem->hgt);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
 		glEnd();
 		glPopMatrix();
 
+				//this is for the enem2
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glTranslatef(enemy2->posX, enemy2->posY+70, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy2->wid, -enemy2->hgt);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy2->wid, enemy2->hgt);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy2->wid, enemy2->hgt);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy2->wid, -enemy2->hgt);
+		glEnd();
+		glPopMatrix();
 
-
+/*
 		//move enemy back and fourth on screen
 		extern void moveEnemy(Enem *e);
 		moveEnemy(enem);
@@ -1100,21 +1084,24 @@ void render(void)
 
 		extern void showGoblin(int x, int y, GLuint Texid);
 		showGoblin(700, 30, gl.goblinTexture);
-		*/
+*/		
 
 		r.bot = gl.yres - 20;
 		r.left = 10;
 		r.center = 0;
 		ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
-		ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
-		ggprint8b(&r, 16, 0x00ffff44, "w    	Collision");
-		ggprint8b(&r, 16, 0x00ffff44, "E        Exit");
 		ggprint8b(&r, 16, 0x00ffff44, "N        Sound Test");
+		ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
+		ggprint8b(&r, 16, 0x00ffff44, "E        Exit");
 
 		if (gl.movie) {
 			screenCapture();
 		}
-
-
+	}
+	else if (gl.gameover == true)
+	{
+		cout << "gameover" << endl;
+		extern void gameover(int x, int y, GLuint texid);
+		gameover(1600/2, 1300/2, gl.gameoverTexture);
 	}
 }
