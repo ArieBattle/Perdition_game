@@ -69,7 +69,11 @@ void init();
 void physics();
 void render();
 //extern void functions
+extern void init_sounds();
 extern void sound_test();
+extern void walking_sound();
+extern void close_sounds();
+extern void music();
 int i = 15;
 int health = 100;
 //-----------------------------------------------------------------------------
@@ -440,7 +444,8 @@ int main(void)
 		x11.swapBuffers();
     cleanup_fonts();
   }
-    return 0;
+  close_sounds();
+  return 0;
 }
 
 unsigned char *buildAlphaData(Image *img)
@@ -708,7 +713,7 @@ void initOpengl(void)
 }
 
 void init() {
-
+    init_sounds();
 }
 
 void checkMouse(XEvent *e)
@@ -809,6 +814,7 @@ int checkKeys(XEvent *e)
 		case XK_s:
 			screenCapture();
 			push_start = true;
+			music();
 			break;
 		case XK_m:
 			gl.movie ^= 1;
@@ -835,12 +841,14 @@ int checkKeys(XEvent *e)
 			gl.exp44.onoff ^= 1;
 			break;
 		case XK_n:
-			extern void sound_test();
+			sound_test();
 			break;
 		case XK_Left:
+			walking_sound();
 			player->positionX -= 5;
 			break;
 		case XK_Right:
+			walking_sound();
 			player->positionX += 5;
 			break;
 		case XK_Up:
