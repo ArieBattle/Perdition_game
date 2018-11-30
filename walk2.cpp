@@ -15,7 +15,7 @@
 //
 #include <stdio.h>
 #include <iostream>
-#include <charclass.h>
+#include "charclass.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
