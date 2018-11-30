@@ -120,6 +120,7 @@ class Global {
 		int walkFrame;
 		int settings;
 		int helpTab;
+		bool gameover;
 		int showRain;
 		double delay;
 		Image *walkImage;
@@ -149,6 +150,7 @@ class Global {
 			showRain = 0;
 			camera[0] = camera[1] = 0.0;
 			movie=0;
+			gameover = false;
 			movieStep=2;
 			xres=1600;
 			yres=1300;
@@ -407,8 +409,8 @@ int main(void)
 	initOpengl();
 	init();
 	player = new Body();
-	enemy1 = new Enem();
-	enemy2 = new Enem();
+	enemy1 = new Enem(200);
+	enemy2 = new Enem(700);
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -421,16 +423,9 @@ int main(void)
 		render();
 		moveEnemy(enemy1);
 		moveEnemy(enemy2);
-	double answer;	
-		extern double collision(double answer, Body *p, Enem *e);
-
-		collision(answer, player, enemy1);
-		collision(answer, player, enemy2);
-		if(answer == 0)
-		{
-			extern void gameover(int x, int y, GLuint texid);
-			gameover(1600/2, 1300/2, gl.gameoverTexture);
-		}
+		extern bool collision(Body *p, Enem *e, bool &go);
+		collision(player, enemy1, gl.gameover);
+		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
 	}
 	cleanup_fonts();
@@ -950,7 +945,7 @@ void render(void)
 
 			return;
 		}
-	} else {
+	} else if(gl.gameover == false) {
 		Rect r;
 		//Clear the screen
 		glClearColor(0.1, 0.1, 0.1, 1.0);
@@ -993,7 +988,7 @@ void render(void)
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(player->positionX+100, player->positionY+115, 0.0f);
+		glTranslatef(player->positionX, player->positionY+115, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
 
 		//added for other walking pics	
@@ -1031,7 +1026,7 @@ void render(void)
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(enemy1->posX, enemy1->posY, 0.0f);
+		glTranslatef(enemy1->posX, enemy1->posY+70, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
@@ -1046,7 +1041,7 @@ void render(void)
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(enemy2->posX+700, enemy2->posY, 0.0f);
+		glTranslatef(enemy2->posX, enemy2->posY+70, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, gl.goblinTexture);
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy2->wid, -enemy2->hgt);
@@ -1074,6 +1069,12 @@ void render(void)
 		if (gl.movie) {
 			screenCapture();
 		}
+	}
+	else if(gl.gameover == true)
+	{
+		cout << "gameover" << endl;
+		extern void gameover(int x, int y, GLuint texid);
+		gameover(1600/2, 1300/2, gl.gameoverTexture);
 	}
 }
 

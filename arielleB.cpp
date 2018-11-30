@@ -169,15 +169,21 @@ void jump (Body *p)
 	}
 }
 
-double collision (double answer, Body *p, Enem *e)
+bool collision (Body *p, Enem *e, bool &gover)
 {
-	answer = sqrt(pow(p->positionX - e->posX,2) + pow(p->positionX - e->posX, 2));
-	return(answer);
-	
+  	if((int)sqrt((pow(((int)e->posX - p->positionX),2)) + (pow((((int)e->posY) - p->positionY),2))) < 1)
+	{
+		cout << "collision" << endl;
+		gover = true;
+		return true;
+	}		
+	else
+		return false;
 }
 
 void gameover (int x, int y, GLuint texid)
 {
+		
 		glColor3ub(255, 255, 255);
 		int widt = 800;;
 		glPushMatrix();
