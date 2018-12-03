@@ -107,7 +107,7 @@ class Image;
 Enem *enemy1;
 Enem *enemy2;
 Body *player;
-Fall *Obj;
+Fall *obj;
 
 class Sprite {
 	public:
@@ -450,7 +450,7 @@ int main(void)
 		render();
 		extern void fallingObj(Fall *O);
 		extern bool collision(Body *p, Enem*e, bool &go);
-		falling (Obj);
+		fallingObj(obj);
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
@@ -1092,12 +1092,12 @@ void render(void)
                 glTranslatef(obj->pX, obj->pY, 0.0f);
                 glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
                 glBegin(GL_QUADS);
-                /*
-                glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
-                glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
-                glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
-                glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
-*/
+                
+                glTexCoord2f(0.0f, 1.0f); glVertex2i(-obj->w, -obj->h);
+                glTexCoord2f(0.0f, 0.0f); glVertex2i(-obj->w, obj->h);
+                glTexCoord2f(1.0f, 0.0f); glVertex2i(obj->w, obj->h);
+                glTexCoord2f(1.0f, 1.0f); glVertex2i(obj->w, -obj->h);
+
                 glEnd();
                 glPopMatrix();
 
