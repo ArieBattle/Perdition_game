@@ -50,3 +50,20 @@ class Enem {
 		}
 };
 
+class Fall {
+	int w;
+	int h;
+	float pX;
+	float pY;
+	float vX;
+	float vY;
+	Fall() {
+		w = 20;
+		h = 40;
+		pX = 0;
+		pY = 1605;
+		pX = 0.0f;
+		vY = 0.0f;
+	}
+};0
+
