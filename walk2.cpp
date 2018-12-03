@@ -426,7 +426,7 @@ Image img[17] = {
 	"./images/floor.gif",
 	"./images/floorAngle.gif",
 	"./images/barrier.gif",
-        "./images/spikeball.png"};
+        "./images/pb.png"};
 
 
 
@@ -434,10 +434,11 @@ int main(void)
 {
 	initOpengl();
 	init();
+	srand(time(NULL));
 	player = new Body();
 	enemy1 = new Enem(200);
 	enemy2 = new Enem(700);
-	obj = new Fall();
+	obj = new Fall[2];
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -448,12 +449,20 @@ int main(void)
 		}
 		collisions(player);
 		render();
-		extern void fallingObj(Fall *O);
+		extern void fallingObj(Fall &O, int px);
 		extern bool collision(Body *p, Enem*e, bool &go);
 		extern void moveEnemy(Enem *e);
 		moveEnemy(enemy1);
 		moveEnemy(enemy2);
-		fallingObj(obj);
+		if(rand() % 30 == 2)
+		{
+		fallingObj(obj[0], player->positionX);
+		}	
+		/*if(rand() % 30 == 2)
+		{
+		fallingObj(obj[1], player->positionX);
+		}
+		*/
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
@@ -694,7 +703,6 @@ void initOpengl(void)
 
 	glGenTextures(1, &gl.spikeballTexture);
 	//-------------------------------------------------------------------------
-	//jeremy texture
 	//
 	int w_sb = img[16].width;
 	int h_sb = img[16].height;
@@ -1059,6 +1067,8 @@ void render(void)
 		glClearColor(0.1, 0.1, 0.1, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 		
+		extern void showBackground(int x, int y, GLuint texid);
+		showBackground(1600/2, 1300/2, gl.perditionTexture);
 		//this is for the enemy1
 		glPushMatrix();
 		glColor3f(1.0, 1.0, 1.0);
@@ -1101,7 +1111,7 @@ void render(void)
                 glTranslatef(obj->pX, obj->pY, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, gl.spikeballTexture);
 
-		glBegin(GL_QUADS);
+		glBegin(GL_TRIANGLE_FAN);
                 
                 glTexCoord2f(0.0f, 1.0f); glVertex2i(-obj->w, -obj->h);
                 glTexCoord2f(0.0f, 0.0f); glVertex2i(-obj->w, obj->h);
@@ -1111,8 +1121,7 @@ void render(void)
                 glEnd();
                 glPopMatrix();
 
-	//	extern void showBackground(int x, int y, GLuint texid);
-	//	showBackground(1600/2, 1300/2, gl.perditionTexture);
+
 
 		// show settings icon top right
 		extern void showSettingsIcon(int x, int y, GLuint texid);

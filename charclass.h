@@ -1,3 +1,5 @@
+#include<cstdlib>
+
 class Body {
 	public:
 		int width;
@@ -61,13 +63,12 @@ class Fall {
 		float grav;
 		float vel;
 		Fall() {
-			w = 20;
+			w = 40;
 			h = 40;
-			pX =  0;
-			pY = 1605;
-			pX = 0.0f;
+			pX =  ((rand() % 1250) +1);
+			pY = 600;
 			vY = 0.0f;
-			grav = -9.8f;
+			grav = 16.0f;
 			vel = 0;
 		}
 };

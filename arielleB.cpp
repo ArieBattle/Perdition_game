@@ -14,7 +14,7 @@
 
 using namespace std;
 
-void gmaeover(double a, GLuint texid);
+void gameover(double a, GLuint texid);
 
 void ShowArielleName(int x, int y)
 {
@@ -158,10 +158,19 @@ void jump (Body *p)
 
 	if(p->positionY == 0)
 	{
+
+		if (p->velocityX > 0)
+		{
+			p->positionX += p->velocityX;
+			p->velocityX--;
+		}
 		inAir = false;
 
 		if (p->positionY < 400 && inAir == false)
 		{
+
+
+
 			p->positionY +=(10*gravity);
 		}
 		else if (p->positionY >= 1200)
@@ -171,7 +180,7 @@ void jump (Body *p)
 
 bool collision (Body *p, Enem *e, bool &gover)
 {
-  	if((int)sqrt((pow(((int)e->posX - p->positionX),2)) + (pow((((int)e->posY) - p->positionY),2))) < 1)
+	if((int)sqrt((pow(((int)e->posX - p->positionX),2)) + (pow((((int)e->posY) - p->positionY),2))) < 1)
 	{
 		cout << "collision" << endl;
 		gover = true;
@@ -183,29 +192,30 @@ bool collision (Body *p, Enem *e, bool &gover)
 
 void gameover (int x, int y, GLuint texid)
 {
-		
-		glColor3ub(255, 255, 255);
-		int widt = 800;;
-		glPushMatrix();
-		glTranslated(x, y, 0);
-		glBindTexture(GL_TEXTURE_2D, texid);
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 1.0f); glVertex2i(-widt, -widt);
-		glTexCoord2f(0.0f, 0.0f); glVertex2i(-widt, widt);
-		glTexCoord2f(1.0f, 0.0f); glVertex2i(widt, widt);
-		glTexCoord2f(1.0f, 1.0f); glVertex2i(widt, -widt);
-		glEnd();
-		glPopMatrix();
+
+	glColor3ub(255, 255, 255);
+	int widt = 800;;
+	glPushMatrix();
+	glTranslated(x, y, 0);
+	glBindTexture(GL_TEXTURE_2D, texid);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-widt, -widt);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-widt, widt);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i(widt, widt);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i(widt, -widt);
+	glEnd();
+	glPopMatrix();
 }
 
-void fallingObj (Fall *O)
+void fallingObj (Fall &O, int px)
 {
+	if (O.pY < 0)
+	{
+		O.pX = ((rand() % 1250) + px);
+		O.pY = 650;
+	}
+	O.pY -= O.grav;
 
-	O->pX = ((rand() % 1250) + 1);
-
-	O->pY = 0.5 * O->grav;
-	
-	
 }
 /*
    void cleanupRaindrops() {
