@@ -64,10 +64,10 @@ void showBackground(int x, int y, GLuint texid)
 void moveEnemy(Enem *e) 
 {
 	//moving right
-	if(e->posX < 900 && e->posX >= 200 && e->patrol == false)
+	if(e->posX < 1250 && e->posX >= 200 && e->patrol == false)
 	{
 		e->posX += 0.5;
-		if(e->posX >= 900)
+		if(e->posX >= 1250)
 		{
 			e->patrol = true;
 		}
@@ -153,7 +153,7 @@ void menu (int x, int y)
 
 void jump (Body *p)
 {
-	float gravity = 10.0f;
+	float gravity = 20.0f;
 	bool inAir = true;
 
 	if(p->positionY == 0)

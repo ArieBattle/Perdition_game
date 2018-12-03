@@ -450,6 +450,9 @@ int main(void)
 		render();
 		extern void fallingObj(Fall *O);
 		extern bool collision(Body *p, Enem*e, bool &go);
+		extern void moveEnemy(Enem *e);
+		moveEnemy(enemy1);
+		moveEnemy(enemy2);
 		fallingObj(obj);
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
@@ -1061,8 +1064,11 @@ void render(void)
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(enemy1->posX, enemy1->posY+70, 0.0f);
+		glTranslatef(enemy1->posX, enemy1->posY+115, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+		
+ 		glBegin(GL_QUADS);
+
 		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
 		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
 		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
@@ -1075,8 +1081,11 @@ void render(void)
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(enemy2->posX, enemy2->posY+70, 0.0f);
-		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+		glTranslatef(enemy2->posX, enemy2->posY+115, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.goblinTexture);
+		
+		glBegin(GL_QUADS);
+
 		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy2->wid, -enemy2->hgt);
 		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy2->wid, enemy2->hgt);
 		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy2->wid, enemy2->hgt);
@@ -1090,8 +1099,9 @@ void render(void)
                 glEnable(GL_ALPHA_TEST);
                 glAlphaFunc(GL_GREATER, 0.0f);
                 glTranslatef(obj->pX, obj->pY, 0.0f);
-                glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
-                glBegin(GL_QUADS);
+		glBindTexture(GL_TEXTURE_2D, gl.spikeballTexture);
+
+		glBegin(GL_QUADS);
                 
                 glTexCoord2f(0.0f, 1.0f); glVertex2i(-obj->w, -obj->h);
                 glTexCoord2f(0.0f, 0.0f); glVertex2i(-obj->w, obj->h);
@@ -1101,8 +1111,8 @@ void render(void)
                 glEnd();
                 glPopMatrix();
 
-		extern void showBackground(int x, int y, GLuint texid);
-		showBackground(1600/2, 1300/2, gl.perditionTexture);
+	//	extern void showBackground(int x, int y, GLuint texid);
+	//	showBackground(1600/2, 1300/2, gl.perditionTexture);
 
 		// show settings icon top right
 		extern void showSettingsIcon(int x, int y, GLuint texid);
@@ -1237,7 +1247,7 @@ void render(void)
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(player->positionX+100, player->positionY+115, 0.0f);
+		glTranslatef(player->positionX, player->positionY+105, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
 
 		//added for other walking pics	

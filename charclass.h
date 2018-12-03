@@ -9,7 +9,7 @@ class Body {
 		Body()
 		{
 			width = 50;
-			height = 150;
+			height = 100;
 			positionY = 0;
 			positionX = 100;
 			velocityX = 0.0f;
@@ -27,8 +27,8 @@ class Enem {
 		bool patrol;
 		Enem()
 		{
-			wid = 50;
-			hgt = 90;
+			wid = 35;
+			hgt = 35;
 			posX = 200;
 			posY = 0;
 			velY = 0.0f;
