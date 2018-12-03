@@ -212,46 +212,22 @@ void fallingObj (Fall &O, int px)
 	if (O.pY < 0)
 	{
 		O.pX = ((rand() % 1250) + px);
-		O.pY = 650;
+		O.pY = 1250;
 	}
 	O.pY -= O.grav;
 
 }
-/*
-   void cleanupRaindrops() {
-   Raindrop *s;
-   while(rainhead) {
-   s = rainhead->next;
-   free(rainhead);
-   rainhead = s;
-   }
-   rainhead=NULL;
-   }
 
-   void deleteRain(Raindrop *node) {
-   if (node->prev == NULL) {
-   if (node->next == NULL) {
-   rainhead = NULL;
-   }
-   } else {
-   if (node->next == NULL) {
-   node ->prev = NULL;
-   } else {
-   node->prev->next = node->next;
-   node->next->prev = node->prev;
-   }
-   }
-   free(node);
-   node = NULL;
-   }
-
-
-   void healthDrop(int health)
-   {
-
-
-   }
-   */
-
+bool c_w_fo(Body &pl, Fall &o, bool &go)
+{
+		if((int)sqrt((pow(((int)o.pX - pl.positionX),2)) + (pow((((int)o.pY) - pl.positionY),2))) < 1)
+	{
+		cout << "collision" << endl;
+		go = true;
+		return true;
+	}		
+	else
+		return false;
+}
 
 

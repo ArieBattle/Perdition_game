@@ -66,9 +66,9 @@ class Fall {
 			w = 40;
 			h = 40;
 			pX =  ((rand() % 1250) +1);
-			pY = 600;
+			pY = 1250;
 			vY = 0.0f;
-			grav = 16.0f;
+			grav = 90.0f;
 			vel = 0;
 		}
 };

@@ -452,6 +452,7 @@ int main(void)
 		extern void fallingObj(Fall &O, int px);
 		extern bool collision(Body *p, Enem*e, bool &go);
 		extern void moveEnemy(Enem *e);
+		extern bool c_w_fo(Body &p, Fall &o, bool go);
 		moveEnemy(enemy1);
 		moveEnemy(enemy2);
 		if(rand() % 30 == 2)
@@ -460,9 +461,9 @@ int main(void)
 		}	
 		if(rand() % 40 == 2)
 		{
-		fallingObj(obj[1], player->positionX);
+		fallingObj(obj[1], player->positionX-20);
 		}
-		
+		//c_w_fo(player, obj[0], gl.gameover);		
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
