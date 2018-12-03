@@ -426,7 +426,7 @@ Image img[17] = {
 	"./images/floor.gif",
 	"./images/floorAngle.gif",
 	"./images/barrier.gif",
-        "./images/pb.png"};
+        "./images/pb.gif"};
 
 
 
@@ -458,11 +458,11 @@ int main(void)
 		{
 		fallingObj(obj[0], player->positionX);
 		}	
-		/*if(rand() % 30 == 2)
+		if(rand() % 40 == 2)
 		{
 		fallingObj(obj[1], player->positionX);
 		}
-		*/
+		
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
@@ -1109,7 +1109,7 @@ void render(void)
                 glEnable(GL_ALPHA_TEST);
                 glAlphaFunc(GL_GREATER, 0.0f);
                 glTranslatef(obj->pX, obj->pY, 0.0f);
-		glBindTexture(GL_TEXTURE_2D, gl.spikeballTexture);
+		glBindTexture(GL_TEXTURE_2D, gl.barrierTexture);
 
 		glBegin(GL_TRIANGLE_FAN);
                 
