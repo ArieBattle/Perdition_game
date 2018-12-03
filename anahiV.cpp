@@ -79,6 +79,7 @@ void initMenu()
       // button attributes and states
         strcpy(newButton.text, anahi::buttOptions[i].text);
         MakeRGBA(newButton.color, 0.4f, 0.4f, 0.7f, 1.0);
+	//Black buttons
        // MakeRGBA(newButton.color, 0.1f, 0.1f, 0.1f, 1.0);
         MakeRGBA(newButton.dcolor, newButton.color[0] * 0.5f,
             newButton.color[1] * 0.5f,
@@ -99,6 +100,7 @@ void initMenu()
     }
 }
 
+//adjust button location according to screen size
 void calculateButtons() {
     int x = gl.xres / 2; // x position at middle
     int y = (gl.yres - (gl.yres / 3)) + BUTTON_Y_OFFSET; // y position at first third portion
@@ -305,10 +307,10 @@ void play()
   gl.mainMenu = 0;
 }
 
-//settings button will go here
+//options button will go here
 void options()
 {
-  Log("Settings button clicked\n");
+  Log("Options button clicked\n");
 }
 
 //quit button will go here
