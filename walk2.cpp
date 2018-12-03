@@ -107,6 +107,7 @@ class Image;
 Enem *enemy1;
 Enem *enemy2;
 Body *player;
+Fall *Obj;
 
 class Sprite {
 	public:
@@ -154,6 +155,7 @@ class Global {
 		GLuint floorTexture;
 		GLuint floorAngleTexture;
 		GLuint barrierTexture;
+		GLuint spikeballTexture;
 		Vec box[20];
 		Sprite exp;
 		Sprite exp44;
@@ -407,7 +409,7 @@ class Image {
 				unlink(ppmname);
 		}
 };
-Image img[16] = {
+Image img[17] = {
 	"./images/walk.gif",
 	"./images/exp.png",
 	"./images/exp44.png",
@@ -423,7 +425,8 @@ Image img[16] = {
 	"./images/gameover.png",
 	"./images/floor.gif",
 	"./images/floorAngle.gif",
-	"./images/barrier.gif"};
+	"./images/barrier.gif",
+        "./images/spikeball.png"};
 
 
 
@@ -434,6 +437,7 @@ int main(void)
 	player = new Body();
 	enemy1 = new Enem(200);
 	enemy2 = new Enem(700);
+	obj = new Fall();
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -444,7 +448,9 @@ int main(void)
 		}
 		collisions(player);
 		render();
+		extern void fallingObj(Fall *O);
 		extern bool collision(Body *p, Enem*e, bool &go);
+		falling (Obj);
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
@@ -670,7 +676,7 @@ void initOpengl(void)
 	
 	glGenTextures(1, &gl.bloodsplatterTexture);
 	//-------------------------------------------------------------------------
-	//jeremy texture
+	//gameover texture
 	//
 	int w_g = img[12].width;
 	int h_g = img[12].height;
@@ -683,6 +689,20 @@ void initOpengl(void)
 			GL_RGB, GL_UNSIGNED_BYTE, img[12].data);
 	//-------------------------------------------------------------------------
 
+	glGenTextures(1, &gl.spikeballTexture);
+	//-------------------------------------------------------------------------
+	//jeremy texture
+	//
+	int w_sb = img[16].width;
+	int h_sb = img[16].height;
+	//
+	glBindTexture(GL_TEXTURE_2D, gl.spikeballTexture);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_sb, h_sb, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[16].data);
+	//-------------------------------------------------------------------------
 	
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
@@ -1035,6 +1055,51 @@ void render(void)
 		//Clear the screen
 		glClearColor(0.1, 0.1, 0.1, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
+		
+		//this is for the enemy1
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glTranslatef(enemy1->posX, enemy1->posY+70, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
+		glEnd();
+		glPopMatrix();
+
+				//this is for the enem2
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glTranslatef(enemy2->posX, enemy2->posY+70, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy2->wid, -enemy2->hgt);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy2->wid, enemy2->hgt);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy2->wid, enemy2->hgt);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy2->wid, -enemy2->hgt);
+		glEnd();
+		glPopMatrix();
+		
+                //this is for falling obj
+                glPushMatrix();
+                glColor3f(1.0, 1.0, 1.0);
+                glEnable(GL_ALPHA_TEST);
+                glAlphaFunc(GL_GREATER, 0.0f);
+                glTranslatef(obj->pX, obj->pY, 0.0f);
+                glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+                glBegin(GL_QUADS);
+                /*
+                glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
+                glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
+                glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
+                glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
+*/
+                glEnd();
+                glPopMatrix();
 
 		extern void showBackground(int x, int y, GLuint texid);
 		showBackground(1600/2, 1300/2, gl.perditionTexture);
@@ -1206,50 +1271,6 @@ void render(void)
 		glPopMatrix();
 
 		
-		//this is for the enemy1
-		glPushMatrix();
-		glColor3f(1.0, 1.0, 1.0);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(enemy1->posX, enemy1->posY+70, 0.0f);
-		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
-		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
-		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
-		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
-		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
-		glEnd();
-		glPopMatrix();
-
-				//this is for the enem2
-		glPushMatrix();
-		glColor3f(1.0, 1.0, 1.0);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(enemy2->posX, enemy2->posY+70, 0.0f);
-		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
-		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy2->wid, -enemy2->hgt);
-		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy2->wid, enemy2->hgt);
-		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy2->wid, enemy2->hgt);
-		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy2->wid, -enemy2->hgt);
-		glEnd();
-		glPopMatrix();
-		
-                //this is for falling obj
-                glPushMatrix();
-                glColor3f(1.0, 1.0, 1.0);
-                glEnable(GL_ALPHA_TEST);
-                glAlphaFunc(GL_GREATER, 0.0f);
-                glTranslatef(obj->pX, obj->pY, 0.0f);
-                glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
-                glBegin(GL_QUADS);
-                /*
-                glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
-                glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
-                glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
-                glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
-*/
-                glEnd();
-                glPopMatrix();
 
 /*
 		//move enemy back and fourth on screen
