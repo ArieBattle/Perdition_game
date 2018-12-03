@@ -1233,6 +1233,23 @@ void render(void)
 		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy2->wid, -enemy2->hgt);
 		glEnd();
 		glPopMatrix();
+		
+                //this is for falling obj
+                glPushMatrix();
+                glColor3f(1.0, 1.0, 1.0);
+                glEnable(GL_ALPHA_TEST);
+                glAlphaFunc(GL_GREATER, 0.0f);
+                glTranslatef(obj->pX, obj->pY, 0.0f);
+                glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+                glBegin(GL_QUADS);
+                /*
+                glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
+                glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
+                glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
+                glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
+*/
+                glEnd();
+                glPopMatrix();
 
 /*
 		//move enemy back and fourth on screen
