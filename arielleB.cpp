@@ -153,7 +153,7 @@ void menu (int x, int y)
 
 void jump (Body *p)
 {
-	float gravity = 12.0f;
+	float gravity = 10.0f;
 	bool inAir = true;
 
 	if(p->positionY == 0)
@@ -198,6 +198,15 @@ void gameover (int x, int y, GLuint texid)
 		glPopMatrix();
 }
 
+void fallingObj (Fall *O)
+{
+
+	O->pX = ((rand() % 1250) + 1);
+
+	O->pY = 0.5 * O->grav;
+	
+	
+}
 /*
    void cleanupRaindrops() {
    Raindrop *s;
