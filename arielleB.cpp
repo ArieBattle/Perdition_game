@@ -153,7 +153,7 @@ void menu (int x, int y)
 
 void jump (Body *p)
 {
-	float gravity = 20.0f;
+	float gravity = 12.0f;
 	bool inAir = true;
 
 	if(p->positionY == 0)

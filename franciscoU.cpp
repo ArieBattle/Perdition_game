@@ -5,9 +5,7 @@
 #include "fonts.h"
 #include <GL/glx.h>
 
-/*
-* Notes: how to make cactus transparent in helpTab
-*/
+
 
 extern void showFranciscoName(int x, int y)
 {
@@ -67,3 +65,45 @@ extern void showHelpText(int x, int y)
     r.center = 1;
     ggprint8b(&r, 40, 0x00ff00, "This is Clyde The Cactus. It doesn ## damage.");
 }
+
+void createFloor(int x, int y, GLuint texid)
+{
+
+    int width = 16;
+    
+	glColor3ub(255, 255, 255);
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glBegin(GL_QUADS);
+
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(-width,  -width);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f( -width,  width);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f( width, width);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(width, -width);
+
+    glEnd();
+    glPopMatrix();
+}
+
+void createFloorAngle(int x, int y, GLuint texid)
+{
+
+    int width = 16;
+    
+	glColor3ub(255, 255, 255);
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glBegin(GL_QUADS);
+
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(-width,  -width);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f( -width,  width);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f( width, width);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(width, -width);
+
+    glEnd();
+    glPopMatrix();
+}
+
+

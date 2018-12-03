@@ -8,10 +8,10 @@ class Body {
         float velocityY;
         Body()
         {
-                width = 50;
-                height = 150;
-                positionY = 0;
-                positionX = 100;
+                width = 40;
+                height = 120;
+                positionY = 100;
+                positionX = 0;
                 velocityX = 0.0f;
         }
 };

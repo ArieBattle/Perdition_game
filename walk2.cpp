@@ -151,6 +151,9 @@ class Global {
 		GLuint settings_icon_Texture;
 		GLuint perditionTexture;
 		GLuint bloodsplatterTexture;
+		GLuint floorTexture;
+		GLuint floorAngleTexture;
+		GLuint barrierTexture;
 		Vec box[20];
 		Sprite exp;
 		Sprite exp44;
@@ -404,7 +407,7 @@ class Image {
 				unlink(ppmname);
 		}
 };
-Image img[13] = {
+Image img[16] = {
 	"./images/walk.gif",
 	"./images/exp.png",
 	"./images/exp44.png",
@@ -417,7 +420,10 @@ Image img[13] = {
 	"./images/goblin.png",
 	"./images/settings_icon.png",
 	"./images/perdition.png",
-	"./images/gameover.png"};
+	"./images/gameover.png",
+	"./images/floor.gif",
+	"./images/floorAngle.gif",
+	"./images/barrier.gif"};
 
 
 
@@ -608,6 +614,45 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_settings_icon, h_settings_icon, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[10].data);
 	//-------------------------------------------------------------------------
+	// barrier texture
+	glGenTextures(1, &gl.barrierTexture);
+	      int w_barrier = img[15].width;
+	      int h_barrier  = img[15].height;
+	      glBindTexture(GL_TEXTURE_2D, gl.barrierTexture);	
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	      unsigned char *xBarrier = buildAlphaData(&img[15]);	
+	      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	      w_barrier, h_barrier,
+	      0, GL_RGBA, GL_UNSIGNED_BYTE, xBarrier);
+	      free(xBarrier);
+	//-------------------------------------------------------------------------
+	// level texture
+	glGenTextures(1, &gl.floorTexture);
+	      int w_floor = img[13].width;
+	      int h_floor  = img[13].height;
+	      glBindTexture(GL_TEXTURE_2D, gl.floorTexture);	
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	      unsigned char *xFloor = buildAlphaData(&img[13]);	
+	      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	      w_floor, h_floor,
+	      0, GL_RGBA, GL_UNSIGNED_BYTE, xFloor);
+	      free(xFloor);
+	//------------------------------------------------------------------------
+	// level texture angle
+	glGenTextures(1, &gl.floorAngleTexture);
+	      int w_floorAngle = img[14].width;
+	      int h_floorAngle  = img[14].height;
+	      glBindTexture(GL_TEXTURE_2D, gl.floorAngleTexture);	
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	      unsigned char *xFloorAngle = buildAlphaData(&img[14]);	
+	      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	      w_floorAngle, h_floorAngle,
+	      0, GL_RGBA, GL_UNSIGNED_BYTE, xFloorAngle);
+	      free(xFloorAngle);
+	//-----------------------------------------------------------------------
 	//perdition texture - title screen
 
 	glGenTextures(1, &gl.perditionTexture);
@@ -882,6 +927,14 @@ int checkKeys(XEvent *e)
 					jump(player);
 				}
 			break;
+		case XK_a:
+			//walking_sound();
+			//player->positionX -= 5;
+			break;
+		case XK_d:
+			//walking_sound();
+			//player->positionX += 5;
+			break;
 	}
 	return 0;
 }
@@ -1010,9 +1063,109 @@ void render(void)
 		//float cx = gl.xres/2.0;
 		//float cy = gl.yres/2.0;
 		//
-
-
-		//
+		
+		//create floor
+		extern void createFloor(int x, int y, GLuint texid);
+		extern void createFloorAngle(int x, int y, GLuint texid);
+		int xGround=0;
+		int yGround=10;
+		
+		//each ground block is 32 pixels wide
+		//1st floor
+	    for (int i=0; i<51; i++) {
+	    	createFloor(xGround, yGround, gl.floorTexture);
+	    	xGround += 32;
+	    }
+	    
+	    //steps to get to 2nd
+	    createFloor(1344, 330, gl.floorTexture);
+	    createFloor(1376, 298, gl.floorTexture);
+	    createFloor(1568, 138, gl.floorTexture);
+	    createFloor(1568, 170, gl.floorTexture);
+	    createFloor(1568, 202, gl.floorTexture);
+	    //2nd floor
+	    int y2ndFloor =362;
+	    int x2ndFloor =0;
+	    for (int i=0; i<8; i++) {
+	    	createFloor(x2ndFloor, y2ndFloor, gl.floorTexture);
+	    	createFloor((x2ndFloor)+416, y2ndFloor, gl.floorTexture);
+	    	createFloor((x2ndFloor)+416, y2ndFloor, gl.floorTexture);
+	    	createFloor((x2ndFloor)+1056, y2ndFloor, gl.floorTexture);
+	    	x2ndFloor +=32;
+	    }
+	    createFloor(800, y2ndFloor, gl.floorTexture);
+	    int t3 =32;
+	    for (int i=0; i<3; i++) {
+	    	createFloor(800, (y2ndFloor)+t3, gl.floorTexture);
+	    	createFloor(864, y2ndFloor, gl.floorTexture);
+	    	createFloor(896, y2ndFloor, gl.floorTexture);
+	    	createFloor(928, y2ndFloor, gl.floorTexture);
+	    	t3+=32;
+	    }
+	    int t =32;
+	    for (int i=0; i<4;i++) {
+	    	createFloor(32, (y2ndFloor)+t, gl.floorTexture);
+	   		t +=32;
+	    }
+	    int t1 =32;
+	    for (int i=0; i<2;i++) {
+	    	createFloor(96, (y2ndFloor)+t1, gl.floorTexture);
+	   		t1 +=32;
+	    }
+	    
+	    //3rd floor
+	    int x3rdFloor =192;
+	    int y3rdFloor =618;
+	    createFloor(160, 554, gl.floorTexture);
+	    for (int i=0; i<8; i++) {
+	    	createFloor(x3rdFloor, y3rdFloor, gl.floorTexture);
+	    	createFloor((x3rdFloor)+992, y3rdFloor, gl.floorTexture);
+	    	x3rdFloor +=32;
+	    }
+	    for (int i=0; i<3;i++) {
+	    	createFloor((x3rdFloor)+96, y3rdFloor, gl.floorTexture);
+	    	createFloor((x3rdFloor)+320, y3rdFloor, gl.floorTexture);
+	    	x3rdFloor +=32;
+	    }
+	    createFloor(928, (y3rdFloor)+32, gl.floorTexture);
+	    createFloor(928, (y3rdFloor)+64, gl.floorTexture);
+	    createFloor(928, y3rdFloor, gl.floorTexture);
+	    createFloor(992, y3rdFloor, gl.floorTexture);
+	    createFloor(1056, y3rdFloor, gl.floorTexture);
+	    createFloor(1088, y3rdFloor, gl.floorTexture);
+	    
+	     //stairs
+	     int xStairs =0;
+	    for (int i=0; i<3; i++) {
+	    	createFloor((xStairs)+704, yGround, gl.floorTexture);	    		
+	    	createFloor	((xStairs)+704, (yGround)+32, gl.floorTexture);
+    		createFloor((xStairs)+416, yGround, gl.floorTexture);
+	   		createFloor((xStairs)+448, (yGround)+32, gl.floorTexture);
+	   		createFloor((xStairs)+1408, yGround, gl.floorTexture);
+	   		createFloor((xStairs)+1408, (yGround)+32, gl.floorTexture);
+	   		createFloor((xStairs)+1408, (yGround)+64, gl.floorTexture);//
+	    	xStairs += 64;
+	    	yGround += 32;		
+	    }
+	    
+	    
+	    
+	    yGround =10;
+	    //vertical walls
+	    for (int i=0; i<5; i++) {
+	    	//createFloor(300, (yGround)+340 , gl.floorTexture);
+	    	createFloor(576, yGround , gl.floorTexture);
+	    	yGround +=32;
+	    }
+	    //Barrier
+	    int barrierWall =0;
+	    for (int i=0; i<32; i++) {
+	    	createFloor(0, barrierWall , gl.barrierTexture);
+	    	createFloor(1600, barrierWall , gl.barrierTexture);
+	    	barrierWall += 32;
+	    }
+	   
+		
 		//this is for the player
 
 		glPushMatrix();
