@@ -15,6 +15,7 @@
 //
 #include <stdio.h>
 #include <iostream>
+#include "charclass.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -24,15 +25,21 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "log.h"
-#include "charclass.h"
 //#include "ppm.h"
 #include "fonts.h"
-
+#include </usr/include/AL/alut.h> //Sound Function Added
 using namespace std;
 //defined types
 typedef double Flt;
 typedef double Vec[3];
 typedef Flt	Matrix[4][4];
+typedef void (*WinResizeHandler)(int, int);
+typedef struct t_mouse {
+    int lbutton;
+    int rbutton;
+    int x;
+    int y;
+} Mouse;
 
 //macros
 #define rnd() (((double)rand())/(double)RAND_MAX)
@@ -44,6 +51,7 @@ typedef Flt	Matrix[4][4];
 			     (c)[1]=(a)[1]-(b)[1]; \
 (c)[2]=(a)[2]-(b)[2]
 #define SPACE_BAR 0x20
+#define MENU_ANAHI // switches between menu implementations
 
 //constants
 const float timeslice = 1.0f;
@@ -51,6 +59,7 @@ const float gravity = -0.4f;
 #define ALPHA 1
 
 //function prototypes
+
 bool push_start = false;
 void initOpengl();
 void checkMouse(XEvent *e);
@@ -58,9 +67,13 @@ int checkKeys(XEvent *e);
 void init();
 void physics();
 void render();
-
-int i = 15;
-int health = 100;
+//extern void functions
+extern void init_sounds();
+extern void sound_test();
+extern void walking_sound();
+extern void close_sounds();
+extern void music();
+int score = 0;
 //-----------------------------------------------------------------------------
 //Setup timers
 class Timers {
@@ -83,16 +96,18 @@ class Timers {
 		void recordTime(struct timespec *t) {
 			clock_gettime(CLOCK_REALTIME, t);
 		}
+
 } timers;
 //-----------------------------------------------------------------------------
 
 class Image;
 
-
-Enem *enemy2;
 Enem *enemy1;
+Enem *enemy2;
 Body *player;
-Fall *objects;
+Fall *obj;
+Fall *obj2;
+Coins *c;
 
 class Sprite {
 	public:
@@ -115,15 +130,16 @@ class Global {
 	public:
 		unsigned char keys[65536];
 		int xres, yres;
+		int mainMenu;
 		int movie, movieStep;
 		int walk;
 		int credits;
 		int walkFrame;
 		int settings;
 		int helpTab;
-		bool gameover;
 		int showRain;
 		double delay;
+		bool gameover;
 		Image *walkImage;
 		GLuint walkTexture;
 		GLuint mariogm734Texture;
@@ -133,9 +149,15 @@ class Global {
 		GLuint cactusTexture;
 		GLuint enemy1Texture;
 		GLuint goblinTexture;
+		GLuint gameoverTexture;
 		GLuint settings_icon_Texture;
 		GLuint perditionTexture;
-		GLuint gameoverTexture;
+		GLuint bloodsplatterTexture;
+		GLuint floorTexture;
+		GLuint floorAngleTexture;
+		GLuint spikeballTexture;
+		GLuint barrierTexture;
+		GLuint coinTexture;
 		Vec box[20];
 		Sprite exp;
 		Sprite exp44;
@@ -143,19 +165,20 @@ class Global {
 		Vec ball_vel;
 		//camera is centered at (0,0) lower-left of screen. 
 		Flt camera[2];
+		Mouse mouse;
 		~Global() {
 			logClose();
 		}
 		Global() {
 			logOpen();
 			showRain = 0;
-			camera[0] = camera[1] = 0.0;
+			mainMenu = 1;
 			movie=0;
-			gameover = false;
 			movieStep=2;
 			xres=1600;
 			yres=1300;
 			walk=0;
+			gameover = false;
 			credits =0;
 			settings = 0;
 			walkFrame=0;
@@ -171,6 +194,7 @@ class Global {
 			exp44.frame=0;
 			exp44.image=NULL;
 			exp44.delay = 0.022;
+			camera[0] = camera[1] = 0.0;
 			for (int i=0; i<20; i++) {
 				box[i][0] = rnd() * xres;
 				box[i][1] = rnd() * (yres-220) + 220.0;
@@ -252,13 +276,16 @@ class Level {
 				++p;
 			}
 		}
+
 } lev;
 
 //X Windows variables
 class X11_wrapper {
+
 	private:
 		Display *dpy;
 		Window win;
+		WinResizeHandler handler;
 	public:
 		~X11_wrapper() {
 			XDestroyWindow(dpy, win);
@@ -292,7 +319,8 @@ class X11_wrapper {
 			Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
 			swa.colormap = cmap;
 			swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
-				StructureNotifyMask | SubstructureNotifyMask;
+					ButtonPress | ButtonReleaseMask | PointerMotionMask |
+					StructureNotifyMask | SubstructureNotifyMask;
 			win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
 					vi->depth, InputOutput, vi->visual,
 					CWColormap | CWEventMask, &swa);
@@ -318,6 +346,9 @@ class X11_wrapper {
 			if (xce.width != gl.xres || xce.height != gl.yres) {
 				//Window size did change.
 				reshapeWindow(xce.width, xce.height);
+				if (handler) {
+					handler(xce.width, xce.height);
+				}
 			}
 		}
 		bool getXPending() {
@@ -330,6 +361,9 @@ class X11_wrapper {
 		}
 		void swapBuffers() {
 			glXSwapBuffers(dpy, win);
+		}
+		void setWindowResizeHandler(WinResizeHandler handler) {
+			this->handler = handler;
 		}
 } x11;
 
@@ -387,7 +421,7 @@ class Image {
 				unlink(ppmname);
 		}
 };
-Image img[13] = {
+Image img[18] = {
 	"./images/walk.gif",
 	"./images/exp.png",
 	"./images/exp44.png",
@@ -400,18 +434,26 @@ Image img[13] = {
 	"./images/goblin.png",
 	"./images/settings_icon.png",
 	"./images/perdition.png",
-	"./images/gameover.png"};
+	"./images/gameover.png",
+	"./images/floor.gif",
+	"./images/floorAngle.gif",
+	"./images/barrier.gif",
+        "./images/pb.gif",
+	"./images/coins.png"};
+
 
 
 int main(void)
 {
-
-	extern void moveEnemy(Enem *e1);
 	initOpengl();
 	init();
+	srand(time(NULL));
 	player = new Body();
 	enemy1 = new Enem(200);
-	enemy2 = new Enem(700);
+	enemy2 = new Enem(900);
+	obj = new Fall[1];
+	obj2 = new Fall[1];
+	c = new Coins[2];
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -420,47 +462,76 @@ int main(void)
 			checkMouse(&e);
 			done = checkKeys(&e);
 		}
+
 		collisions(player);
+
 		render();
+		extern void fallingObj(Fall &O, int px);
+		extern bool collision(Body *p, Enem*e, bool &go);
+		extern void moveEnemy(Enem *e);
+		extern bool c_w_fo(Body *p, Fall &o, bool &go);
+		extern void placeCoin (Coins &co);
+		extern void score(Body *p, Coins &c, int sc, int x, int y);
 		moveEnemy(enemy1);
 		moveEnemy(enemy2);
-		extern bool collision(Body *p, Enem *e, bool &go);
+		if(rand() % 30 == 2)
+		{
+		fallingObj(obj[0], player->positionX);
+		}	
+		if(rand() % 40 == 2)
+		{
+		fallingObj(obj2[0], player->positionX-20);
+		}
+		placeCoin(c[0]); 
+		//score(player, c[0], score);
+		c_w_fo(player, obj[0], gl.gameover);	
+		c_w_fo(player, obj2[0], gl.gameover);		
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
-	}
-	cleanup_fonts();
-	return 0;
+  }
+  close_sounds();
+  return 0;
+}
+
+void onWindowResize(int width, int height) {
+	Log("Window resized to %dx%d\n", width, height);
+	gl.xres = width;
+	gl.yres = height;
+#ifdef MENU_ANAHI
+	extern void calculateButtons();
+	calculateButtons();
+#endif
 }
 
 unsigned char *buildAlphaData(Image *img)
 {
-	//add 4th component to RGB stream...
-	int i;
-	unsigned char *newdata, *ptr;
-	unsigned char *data = (unsigned char *)img->data;
-	newdata = (unsigned char *)malloc(img->width * img->height * 4);
-	ptr = newdata;
-	unsigned char a,b,c;
-	//use the first pixel in the image as the transparent color.
-	unsigned char t0 = *(data+0);
-	unsigned char t1 = *(data+1);
-	unsigned char t2 = *(data+2);
-	for (i=0; i<img->width * img->height * 3; i+=3) {
-		a = *(data+0);
-		b = *(data+1);
-		c = *(data+2);
-		*(ptr+0) = a;
-		*(ptr+1) = b;
-		*(ptr+2) = c;
-		*(ptr+3) = 1;
-		if (a==t0 && b==t1 && c==t2)
-			*(ptr+3) = 0;
-		//-----------------------------------------------
-		ptr += 4;
-		data += 3;
-	}
-	return newdata;
+    //add 4th component to RGB stream...
+    int i;
+    unsigned char *newdata, *ptr;
+    unsigned char *data = (unsigned char *)img->data;
+    newdata = (unsigned char *)malloc(img->width * img->height * 4);
+    ptr = newdata;
+    unsigned char a,b,c;
+    //use the first pixel in the image as the transparent color.
+    unsigned char t0 = *(data+0);
+    unsigned char t1 = *(data+1);
+    unsigned char t2 = *(data+2);
+    for (i=0; i<img->width * img->height * 3; i+=3) {
+	a = *(data+0);
+	b = *(data+1);
+	c = *(data+2);
+	*(ptr+0) = a;
+	*(ptr+1) = b;
+	*(ptr+2) = c;
+	*(ptr+3) = 1;
+	if (a==t0 && b==t1 && c==t2)
+	    *(ptr+3) = 0;
+	//-----------------------------------------------
+	ptr += 4;
+	data += 3;
+    }
+    return newdata;
 }
 
 void initOpengl(void)
@@ -562,14 +633,21 @@ void initOpengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_enemy1, h_enemy1, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[8].data);
-	glGenTextures(1, &gl.settings_icon_Texture);
-	//-------------------------------------------------------------------------
+	
+	
+	//must build a new set of data...
+	unsigned char *enemy1Data = buildAlphaData(&img[8]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_enemy1, h_enemy1, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, enemy1Data);
+	free(enemy1Data);
+    //-------------------------------------------------------------------------
 
 
-	glGenTextures(1, &gl.goblinTexture);
+	
 	//-------------------------------------------------------------------------
 	//goblin texture
 	//
+	glGenTextures(1, &gl.goblinTexture);
 	int w_goblin = img[9].width;
 	int h_goblin = img[9].height;
 	//
@@ -579,20 +657,71 @@ void initOpengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_goblin, h_goblin, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[9].data);
-
-
+	
+	//must build a new set of data...
+	unsigned char *goblinData = buildAlphaData(&img[9]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_goblin, h_goblin, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, goblinData);
+	free(goblinData);
+	
+	//-------------------------------------------------------------------------	
 	//settings icon texture
-	//
+	glGenTextures(1, &gl.settings_icon_Texture);
 	int w_settings_icon = img[10].width;
 	int h_settings_icon  = img[10].height;
-	//
+	
 	glBindTexture(GL_TEXTURE_2D, gl.settings_icon_Texture);
-	//
+	
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_settings_icon, h_settings_icon, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[10].data);
+	
+	
+	//must build a new set of data...
+	unsigned char *iconData = buildAlphaData(&img[10]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_settings_icon, h_settings_icon, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, iconData);
+	free(iconData);
+    
 	//-------------------------------------------------------------------------
+	// barrier texture
+	glGenTextures(1, &gl.barrierTexture);
+	      int w_barrier = img[15].width;
+	      int h_barrier  = img[15].height;
+	      glBindTexture(GL_TEXTURE_2D, gl.barrierTexture);	
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	      unsigned char *xBarrier = buildAlphaData(&img[15]);	
+	      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	      w_barrier, h_barrier,
+	      0, GL_RGBA, GL_UNSIGNED_BYTE, xBarrier);
+	      free(xBarrier);
+	//-------------------------------------------------------------------------
+	// level texture
+	glGenTextures(1, &gl.floorTexture);
+	      int w_floor = img[13].width;
+	      int h_floor  = img[13].height;
+	      glBindTexture(GL_TEXTURE_2D, gl.floorTexture);	
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	      unsigned char *xFloor = buildAlphaData(&img[13]);	
+	      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	      w_floor, h_floor,
+	      0, GL_RGBA, GL_UNSIGNED_BYTE, xFloor);
+	      free(xFloor);
+	//------------------------------------------------------------------------
+	// level texture angle
+	glGenTextures(1, &gl.floorAngleTexture);
+	      int w_floorAngle = img[14].width;
+	      int h_floorAngle  = img[14].height;
+	      glBindTexture(GL_TEXTURE_2D, gl.floorAngleTexture);	
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	      unsigned char *xFloorAngle = buildAlphaData(&img[14]);	
+	      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	      w_floorAngle, h_floorAngle,
+	      0, GL_RGBA, GL_UNSIGNED_BYTE, xFloorAngle);
+	      free(xFloorAngle);
+	//-----------------------------------------------------------------------
 	//perdition texture - title screen
 
 	glGenTextures(1, &gl.perditionTexture);
@@ -607,10 +736,11 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_p, h_p, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[11].data);
 	//--------------------------------------------------------------------------- 
-	//gameover texture - 
-
-	glGenTextures(1, &gl.perditionTexture);
+	
+	glGenTextures(1, &gl.bloodsplatterTexture);
 	//-------------------------------------------------------------------------
+	//gameover texture
+	//
 	int w_g = img[12].width;
 	int h_g = img[12].height;
 	//
@@ -620,7 +750,40 @@ void initOpengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_g, h_g, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[12].data);
-	//--------------------------------------------------------------------------- 
+	//-------------------------------------------------------------------------
+
+	glGenTextures(1, &gl.spikeballTexture);
+	//-------------------------------------------------------------------------
+	//
+	int w_sb = img[16].width;
+	int h_sb = img[16].height;
+	//
+	glBindTexture(GL_TEXTURE_2D, gl.spikeballTexture);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_sb, h_sb, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[16].data);
+	//-------------------------------------------------------------------------
+		//coin texture
+	//
+	glGenTextures(1, &gl.coinTexture);
+	int w_coin = img[17].width;
+	int h_coin = img[17].height;
+	//
+	glBindTexture(GL_TEXTURE_2D, gl.coinTexture);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_coin, h_coin, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, img[17].data);
+	
+	//must build a new set of data...
+	unsigned char *coinData = buildAlphaData(&img[17]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_goblin, h_goblin, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, coinData);
+	free(coinData);
+//---------------------------------------------------------------------------------
 	glViewport(0, 0, gl.xres, gl.yres);
 	//Initialize matrices
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -691,10 +854,12 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, xData);
 	free(xData);
+
 }
 
 void init() {
-
+	x11.setWindowResizeHandler(onWindowResize);
+    init_sounds();
 }
 
 void checkMouse(XEvent *e)
@@ -709,18 +874,27 @@ void checkMouse(XEvent *e)
 			e->type != MotionNotify)
 		return;
 	if (e->type == ButtonRelease) {
+		if (e->xbutton.button == 1) {
+			//Left button is down
+            gl.mouse.lbutton = 0;
+        }
+		if (e->xbutton.button == 3) {
+            //Right button is down
+            gl.mouse.rbutton = 0;
+        }
 		return;
 	}
 	if (e->type == ButtonPress) {
 
 		if (e->xbutton.button==1) {
 			//Left button is down
-
+			gl.mouse.lbutton = 1;
 			push_start = true;
 
 		}
 		if (e->xbutton.button==3) {
 			//Right button is down
+			gl.mouse.rbutton = 1;
 			push_start = true;
 
 		}
@@ -730,8 +904,12 @@ void checkMouse(XEvent *e)
 			//Mouse moved
 			savex = e->xbutton.x;
 			savey = e->xbutton.y;
+			gl.mouse.x = e->xbutton.x;
+            gl.mouse.y = e->xbutton.y;
+			Log("checkMouse(): gl.mouse.y -- %d\n", gl.mouse.y);
 		}
 	}
+
 }
 
 void screenCapture()
@@ -794,6 +972,7 @@ int checkKeys(XEvent *e)
 		case XK_s:
 			screenCapture();
 			push_start = true;
+			music();
 			break;
 		case XK_m:
 			gl.movie ^= 1;
@@ -801,6 +980,13 @@ int checkKeys(XEvent *e)
 		case XK_w:
 			timers.recordTime(&timers.walkTime);
 			gl.walk ^= 1;
+
+			/*
+			   extern void Rcollision(int x, int y,Body *p, Enem *e, GLuint texid);
+
+			   if (gl.keys[XK_w]) {
+			   Rcollision(1600/2, 1300/2, player, enem, gl.bloodsplatterTexture);
+			   }*/
 			break;
 		case XK_e:
 			exit(0);
@@ -813,12 +999,14 @@ int checkKeys(XEvent *e)
 			gl.exp44.onoff ^= 1;
 			break;
 		case XK_n:
-			extern void sound_test();
+			sound_test();
 			break;
 		case XK_Left:
+			walking_sound();
 			player->positionX -= 5;
 			break;
 		case XK_Right:
+			walking_sound();
 			player->positionX += 5;
 			break;
 		case XK_Up:
@@ -846,10 +1034,19 @@ int checkKeys(XEvent *e)
 			gl.helpTab ^= 1;
 			break;	
 		case XK_space:
-			if (gl.keys[XK_space]) {
-				extern void jump(Body *p);
-				jump(player);
-			}
+			//if spacebar is hit jump (?)
+				if (gl.keys[XK_space]) {
+					extern void jump(Body *p);
+					jump(player);
+				}
+			break;
+		case XK_a:
+			//walking_sound();
+			//player->positionX -= 5;
+			break;
+		case XK_d:
+			//walking_sound();
+			//player->positionX += 5;
 			break;
 	}
 	return 0;
@@ -882,6 +1079,7 @@ void collisions(Body *player)
 	{
 		player->positionY = 0;
 	}
+
 }
 /*
    void cleanupRaindrops() {
@@ -913,13 +1111,21 @@ void collisions(Body *player)
    */
 
 void render(void)
-{	
-
+{/*	
+#ifdef MENU_ANAHI
+	if (gl.mainMenu) {
+		extern void showMenu();
+		Log("render() -- &gl.mouse: %x\n", &gl.mouse);
+		Log("render() before showMenu: gl.mouse.y -- %d\n", gl.mouse.y);
+		showMenu();
+		Log("render() after showMenu: gl.mouse.y -- %d\n", gl.mouse.y);
+	} else
+#else*/
 	if(!push_start)	{
 
 		extern void menu(int x, int y);
 		menu(100, gl.yres-155);
-
+	}//#endif
 		if (gl.credits) {
 
 			//display names
@@ -946,18 +1152,110 @@ void render(void)
 
 			return;
 		}
-	} else if(gl.gameover == false) {
+#ifndef MENU_ANAHI
+	} 
+#endif
+	else if (gl.gameover == false) {
 		Rect r;
 		//Clear the screen
 		glClearColor(0.1, 0.1, 0.1, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		
 		extern void showBackground(int x, int y, GLuint texid);
 		showBackground(1600/2, 1300/2, gl.perditionTexture);
+		
+		//this is for the enemy1
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glTranslatef(enemy1->posX, enemy1->posY+110, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
+		
+ 		glBegin(GL_QUADS);
+
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
+		glEnd();
+		glPopMatrix();
+
+				//this is for the enem2
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glTranslatef(enemy2->posX, enemy2->posY+105, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.goblinTexture);
+		
+		glBegin(GL_QUADS);
+
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy2->wid, -enemy2->hgt);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy2->wid, enemy2->hgt);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy2->wid, enemy2->hgt);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy2->wid, -enemy2->hgt);
+		glEnd();
+		glPopMatrix();
+		
+                //this is for falling obj
+                glPushMatrix();
+                glColor3f(1.0, 1.0, 1.0);
+                glEnable(GL_ALPHA_TEST);
+                glAlphaFunc(GL_GREATER, 0.0f);
+                glTranslatef(obj->pX, obj->pY, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.barrierTexture);
+
+		glBegin(GL_TRIANGLE_FAN);
+                
+                glTexCoord2f(0.0f, 1.0f); glVertex2i(-obj->w, -obj->h);
+                glTexCoord2f(0.0f, 0.0f); glVertex2i(-obj->w, obj->h);
+                glTexCoord2f(1.0f, 0.0f); glVertex2i(obj->w, obj->h);
+                glTexCoord2f(1.0f, 1.0f); glVertex2i(obj->w, -obj->h);
+
+                glEnd();
+                glPopMatrix();
+
+                //this is for falling obj
+                glPushMatrix();
+                glColor3f(1.0, 1.0, 1.0);
+                glEnable(GL_ALPHA_TEST);
+                glAlphaFunc(GL_GREATER, 0.0f);
+                glTranslatef(obj2->pX, obj2->pY, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.barrierTexture);
+
+		glBegin(GL_TRIANGLE_FAN);
+                
+                glTexCoord2f(0.0f, 1.0f); glVertex2i(-obj2->w, -obj2->h);
+                glTexCoord2f(0.0f, 0.0f); glVertex2i(-obj2->w, obj2->h);
+                glTexCoord2f(1.0f, 0.0f); glVertex2i(obj2->w, obj2->h);
+                glTexCoord2f(1.0f, 1.0f); glVertex2i(obj2->w, -obj2->h);
+
+                glEnd();
+                glPopMatrix();
+
+		 //this is for coins
+                glPushMatrix();
+                glColor3f(1.0, 1.0, 1.0);
+                glEnable(GL_ALPHA_TEST);
+                glAlphaFunc(GL_GREATER, 0.0f);
+                glTranslatef(c->pcX, c->pcY, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, gl.coinTexture);
+
+		glBegin(GL_TRIANGLE_FAN);
+                
+                glTexCoord2f(0.0f, 1.0f); glVertex2i(-c->wc, -c->hc);
+                glTexCoord2f(0.0f, 0.0f); glVertex2i(-c->wc, c->hc);
+                glTexCoord2f(1.0f, 0.0f); glVertex2i(c->wc, c->hc);
+                glTexCoord2f(1.0f, 1.0f); glVertex2i(c->wc, -c->hc);
+
+                glEnd();
+                glPopMatrix();
+
 
 		// show settings icon top right
 		extern void showSettingsIcon(int x, int y, GLuint texid);
-		showSettingsIcon(gl.xres-30, gl.yres-30, gl.settings_icon_Texture);
+		showSettingsIcon(gl.xres-50, gl.yres-45, gl.settings_icon_Texture);
 
 		//display settings
 		if (gl.settings) {
@@ -976,20 +1274,119 @@ void render(void)
 			return;
 		}
 
-
-
 		//float cx = gl.xres/2.0;
 		//float cy = gl.yres/2.0;
 		//
-
-
-		//
+		
+		//create floor
+		extern void createFloor(int x, int y, GLuint texid);
+		extern void createFloorAngle(int x, int y, GLuint texid);
+		int xGround=0;
+		int yGround=10;
+		
+		//each ground block is 32 pixels wide
+		//1st floor
+	    for (int i=0; i<51; i++) {
+	    	createFloor(xGround, yGround, gl.floorTexture);
+	    	xGround += 32;
+	    }
+	    
+	    //steps to get to 2nd
+	    createFloor(1344, 330, gl.floorTexture);
+	    createFloor(1376, 298, gl.floorTexture);
+	    createFloor(1568, 138, gl.floorTexture);
+	    createFloor(1568, 170, gl.floorTexture);
+	    createFloor(1568, 202, gl.floorTexture);
+	    //2nd floor
+	    int y2ndFloor =362;
+	    int x2ndFloor =0;
+	    for (int i=0; i<8; i++) {
+	    	createFloor(x2ndFloor, y2ndFloor, gl.floorTexture);
+	    	createFloor((x2ndFloor)+416, y2ndFloor, gl.floorTexture);
+	    	createFloor((x2ndFloor)+416, y2ndFloor, gl.floorTexture);
+	    	createFloor((x2ndFloor)+1056, y2ndFloor, gl.floorTexture);
+	    	x2ndFloor +=32;
+	    }
+	    createFloor(800, y2ndFloor, gl.floorTexture);
+	    int t3 =32;
+	    for (int i=0; i<3; i++) {
+	    	createFloor(800, (y2ndFloor)+t3, gl.floorTexture);
+	    	createFloor(864, y2ndFloor, gl.floorTexture);
+	    	createFloor(896, y2ndFloor, gl.floorTexture);
+	    	createFloor(928, y2ndFloor, gl.floorTexture);
+	    	t3+=32;
+	    }
+	    int t =32;
+	    for (int i=0; i<4;i++) {
+	    	createFloor(32, (y2ndFloor)+t, gl.floorTexture);
+	   		t +=32;
+	    }
+	    int t1 =32;
+	    for (int i=0; i<2;i++) {
+	    	createFloor(96, (y2ndFloor)+t1, gl.floorTexture);
+	   		t1 +=32;
+	    }
+	    
+	    //3rd floor
+	    int x3rdFloor =192;
+	    int y3rdFloor =618;
+	    createFloor(160, 554, gl.floorTexture);
+	    for (int i=0; i<8; i++) {
+	    	createFloor(x3rdFloor, y3rdFloor, gl.floorTexture);
+	    	createFloor((x3rdFloor)+992, y3rdFloor, gl.floorTexture);
+	    	x3rdFloor +=32;
+	    }
+	    for (int i=0; i<3;i++) {
+	    	createFloor((x3rdFloor)+96, y3rdFloor, gl.floorTexture);
+	    	createFloor((x3rdFloor)+320, y3rdFloor, gl.floorTexture);
+	    	x3rdFloor +=32;
+	    }
+	    createFloor(928, (y3rdFloor)+32, gl.floorTexture);
+	    createFloor(928, (y3rdFloor)+64, gl.floorTexture);
+	    createFloor(928, y3rdFloor, gl.floorTexture);
+	    createFloor(992, y3rdFloor, gl.floorTexture);
+	    createFloor(1056, y3rdFloor, gl.floorTexture);
+	    createFloor(1088, y3rdFloor, gl.floorTexture);
+	    
+	     //stairs
+	     int xStairs =0;
+	    for (int i=0; i<3; i++) {
+	    	createFloor((xStairs)+704, yGround, gl.floorTexture);	    		
+	    	createFloor	((xStairs)+704, (yGround)+32, gl.floorTexture);
+    		createFloor((xStairs)+416, yGround, gl.floorTexture);
+	   		createFloor((xStairs)+448, (yGround)+32, gl.floorTexture);
+	   		createFloor((xStairs)+1408, yGround, gl.floorTexture);
+	   		createFloor((xStairs)+1408, (yGround)+32, gl.floorTexture);
+	   		createFloor((xStairs)+1408, (yGround)+64, gl.floorTexture);//
+	    	xStairs += 64;
+	    	yGround += 32;		
+	    }
+	    
+	    
+	    
+	    yGround =10;
+	    //vertical walls
+	    for (int i=0; i<5; i++) {
+	    	//createFloor(300, (yGround)+340 , gl.floorTexture);
+	    	createFloor(576, yGround , gl.floorTexture);
+	    	yGround +=32;
+	    }
+	    //Barrier
+	    int barrierWall =0;
+	    for (int i=0; i<32; i++) {
+	    	createFloor(0, barrierWall , gl.barrierTexture);
+	    	createFloor(1600, barrierWall , gl.barrierTexture);
+	    	barrierWall += 32;
+	    }
+	   
+		
 		//this is for the player
+
 		glPushMatrix();
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(player->positionX, player->positionY+115, 0.0f);
+		glTranslatef(player->positionX, player->positionY+105, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
 
 		//added for other walking pics	
@@ -1022,81 +1419,37 @@ void render(void)
 		glEnd();
 		glPopMatrix();
 
-		//this is for the enemy1
-		glPushMatrix();
-		glColor3f(1.0, 1.0, 1.0);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(enemy1->posX, enemy1->posY+70, 0.0f);
-		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
-		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
-		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
-		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
-		glEnd();
-		glPopMatrix();
-
-	//this is for the enemy2
-		glPushMatrix();
-		glColor3f(1.0, 1.0, 1.0);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(enemy2->posX, enemy2->posY+70, 0.0f);
-		glBindTexture(GL_TEXTURE_2D, gl.goblinTexture);
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy2->wid, -enemy2->hgt);
-		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy2->wid, enemy2->hgt);
-		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy2->wid, enemy2->hgt);
-		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy2->wid, -enemy2->hgt);
-		glEnd();
-		glPopMatrix();
-
-		//this is for falling obj
-		glPushMatrix();
-		glColor3f(1.0, 1.0, 1.0);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.0f);
-		glTranslatef(obj->pX, obj->pY, 0.0f);
-		glBindTexture(GL_TEXTURE_2D, gl.enemy1Texture);
-		glBegin(GL_QUADS);
-		/*
-		glTexCoord2f(0.0f, 1.0f); glVertex2i(-enemy1->wid, -enemy1->hgt);
-		glTexCoord2f(0.0f, 0.0f); glVertex2i(-enemy1->wid, enemy1->hgt);
-		glTexCoord2f(1.0f, 0.0f); glVertex2i(enemy1->wid, enemy1->hgt);
-		glTexCoord2f(1.0f, 1.0f); glVertex2i(enemy1->wid, -enemy1->hgt);
-*/
-		glEnd();
-		glPopMatrix();
+		
 
 /*
-		//show enemy	
-		extern void showEnemy1(int x, int y, GLuint Texid);
-		showEnemy1(500, 30, gl.enemy1Texture);
+		//move enemy back and fourth on screen
+		extern void moveEnemy(Enem *e);
+		moveEnemy(enem);
+
+		//show enemies	
+		//extern void showEnemy1(int x, int y, GLuint Texid);
+		//showEnemy1(500, 30, gl.enemy1Texture);
 
 		extern void showGoblin(int x, int y, GLuint Texid);
 		showGoblin(700, 30, gl.goblinTexture);
-*/
+*/		
+
 		r.bot = gl.yres - 20;
 		r.left = 10;
 		r.center = 0;
 		ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
-		ggprint8b(&r, 16, 0x00ffff44, "N    	Sound Test");
+		ggprint8b(&r, 16, 0x00ffff44, "N        Sound Test");
 		ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
-		ggprint8b(&r, 16, 0x00ffff44, "E	Exit");
+		ggprint8b(&r, 16, 0x00ffff44, "E        Exit");
+
 		if (gl.movie) {
 			screenCapture();
 		}
 	}
-	else if(gl.gameover == true)
+	else if (gl.gameover == true)
 	{
 		cout << "gameover" << endl;
 		extern void gameover(int x, int y, GLuint texid);
 		gameover(1600/2, 1300/2, gl.gameoverTexture);
 	}
 }
-
-
-
-
-

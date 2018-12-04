@@ -14,7 +14,7 @@
 
 using namespace std;
 
-void gmaeover(double a, GLuint texid);
+void gameover(double a, GLuint texid);
 
 void ShowArielleName(int x, int y)
 {
@@ -64,10 +64,10 @@ void showBackground(int x, int y, GLuint texid)
 void moveEnemy(Enem *e) 
 {
 	//moving right
-	if(e->posX < 900 && e->posX >= 200 && e->patrol == false)
+	if(e->posX < 1250 && e->posX >= 200 && e->patrol == false)
 	{
 		e->posX += 0.5;
-		if(e->posX >= 900)
+		if(e->posX >= 1250)
 		{
 			e->patrol = true;
 		}
@@ -99,7 +99,6 @@ void showEnemy1(int x, int y, GLuint texid)
 	glEnd();
 	glPopMatrix();
 }
-
 
 void showGoblin(int x, int y, GLuint texid)
 {
@@ -146,10 +145,7 @@ void menu (int x, int y)
 	ggprint8b(&b, 40, 0x00ffff44, "PRESS S TO START");
 	ggprint8b(&c, 40, 0x00ffff44, "PRESS E TO EXIT");
 	ggprint8b(&d, 40, 0x00ffff44, "PRESS C FOR CREDITS");
-
 }
-
-
 
 void jump (Body *p)
 {
@@ -158,6 +154,11 @@ void jump (Body *p)
 
 	if(p->positionY == 0)
 	{
+		if (p->velocityX > 0)
+		{
+			p->positionX += p->velocityX;
+			p->velocityX--;
+		}
 		inAir = false;
 
 		if (p->positionY < 400 && inAir == false)
@@ -171,7 +172,7 @@ void jump (Body *p)
 
 bool collision (Body *p, Enem *e, bool &gover)
 {
-  	if((int)sqrt((pow(((int)e->posX - p->positionX),2)) + (pow((((int)e->posY) - p->positionY),2))) < 1)
+	if((int)sqrt((pow(((int)e->posX - p->positionX),2)) + (pow((((int)e->posY) - p->positionY),2))) < 1)
 	{
 		cout << "collision" << endl;
 		gover = true;
@@ -183,56 +184,64 @@ bool collision (Body *p, Enem *e, bool &gover)
 
 void gameover (int x, int y, GLuint texid)
 {
-		
-		glColor3ub(255, 255, 255);
-		int widt = 800;;
-		glPushMatrix();
-		glTranslated(x, y, 0);
-		glBindTexture(GL_TEXTURE_2D, texid);
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 1.0f); glVertex2i(-widt, -widt);
-		glTexCoord2f(0.0f, 0.0f); glVertex2i(-widt, widt);
-		glTexCoord2f(1.0f, 0.0f); glVertex2i(widt, widt);
-		glTexCoord2f(1.0f, 1.0f); glVertex2i(widt, -widt);
-		glEnd();
-		glPopMatrix();
+
+	glColor3ub(255, 255, 255);
+	int widt = 800;;
+	glPushMatrix();
+	glTranslated(x, y, 0);
+	glBindTexture(GL_TEXTURE_2D, texid);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(-widt, -widt);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(-widt, widt);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i(widt, widt);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i(widt, -widt);
+	glEnd();
+	glPopMatrix();
 }
 
+void fallingObj (Fall &O, int px)
+{
+	if (O.pY < 0)
+	{
+		O.pX = ((rand() % 1250) + px);
+		O.pY = 1250;
+	}
+	O.pY -= O.grav;
+
+}
+int distance(int x1, int x2, int y1, int y2)
+{
+	return sqrt(pow(x1 - x2,2) + pow(y1 - y2, 2));
+
+}
+bool c_w_fo (Body *pl, Fall &o, bool &go)
+{
+	if(distance(o.pX, pl->positionX, o.pY, pl->positionY) < 55)
+	{
+		cout << "collision" << endl;
+		go = true;
+		return true;
+	}		
+	else
+		return false;
+}
+
+void placeCoin (Coins &co)
+{
+	co.pcX = 50;
+	co.pcY = 20;
+}
 /*
-   void cleanupRaindrops() {
-   Raindrop *s;
-   while(rainhead) {
-   s = rainhead->next;
-   free(rainhead);
-   rainhead = s;
-   }
-   rainhead=NULL;
-   }
+void score(Body *p, Coins &c, int sc, int x, int y)
+{
+	if((int)sqrt((pow(((int)c->posX - p->positionX),2)) + (pow((((int)c->posY) - p->positionY),2))) < 1)
+	{
+		sc++;
 
-   void deleteRain(Raindrop *node) {
-   if (node->prev == NULL) {
-   if (node->next == NULL) {
-   rainhead = NULL;
-   }
-   } else {
-   if (node->next == NULL) {
-   node ->prev = NULL;
-   } else {
-   node->prev->next = node->next;
-   node->next->prev = node->prev;
-   }
-   }
-   free(node);
-   node = NULL;
-   }
-
-
-   void healthDrop(int health)
-   {
-
-
-   }
-   */
-
-
-
+		Rect r;
+		r.bot = y - 100;
+		r.left = x + 280;
+		r.center = 1;
+		ggprint8b(&r, 40, 0x00ffff44, "SCORE: ", sc);
+	}
+}*/
