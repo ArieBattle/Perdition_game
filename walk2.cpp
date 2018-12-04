@@ -33,6 +33,13 @@ using namespace std;
 typedef double Flt;
 typedef double Vec[3];
 typedef Flt	Matrix[4][4];
+typedef void (*WinResizeHandler)(int, int);
+typedef struct t_mouse {
+    int lbutton;
+    int rbutton;
+    int x;
+    int y;
+} Mouse;
 
 //macros
 #define rnd() (((double)rand())/(double)RAND_MAX)
@@ -44,6 +51,7 @@ typedef Flt	Matrix[4][4];
 			     (c)[1]=(a)[1]-(b)[1]; \
 (c)[2]=(a)[2]-(b)[2]
 #define SPACE_BAR 0x20
+//#define MENU_ANAHI // switches between menu implementations
 
 //constants
 const float timeslice = 1.0f;
@@ -51,15 +59,6 @@ const float gravity = -0.4f;
 #define ALPHA 1
 
 //function prototypes
-
-typedef struct t_mouse {
-    int eventType;
-    int lbutton;
-    int rbutton;
-    int x;
-    int y;
-} Mouse;
-
 
 bool push_start = false;
 void initOpengl();
@@ -130,6 +129,7 @@ class Global {
 	public:
 		unsigned char keys[65536];
 		int xres, yres;
+		int mainMenu;
 		int movie, movieStep;
 		int walk;
 		int credits;
@@ -163,6 +163,7 @@ class Global {
 		Vec ball_vel;
 		//camera is centered at (0,0) lower-left of screen. 
 		Flt camera[2];
+		Mouse mouse;
 		~Global() {
 			logClose();
 		}
@@ -170,6 +171,7 @@ class Global {
 			logOpen();
 			showRain = 0;
 			camera[0] = camera[1] = 0.0;
+			mainMenu = 1;
 			movie=0;
 			movieStep=2;
 			xres=1600;
@@ -281,6 +283,7 @@ class X11_wrapper {
 	private:
 		Display *dpy;
 		Window win;
+		WinResizeHandler handler;
 	public:
 		~X11_wrapper() {
 			XDestroyWindow(dpy, win);
@@ -340,6 +343,9 @@ class X11_wrapper {
 			if (xce.width != gl.xres || xce.height != gl.yres) {
 				//Window size did change.
 				reshapeWindow(xce.width, xce.height);
+				if (handler) {
+					handler(xce.width, xce.height);
+				}
 			}
 		}
 		bool getXPending() {
@@ -352,6 +358,9 @@ class X11_wrapper {
 		}
 		void swapBuffers() {
 			glXSwapBuffers(dpy, win);
+		}
+		void setWindowResizeHandler(WinResizeHandler handler) {
+			this->handler = handler;
 		}
 } x11;
 
@@ -471,6 +480,16 @@ int main(void)
   }
   close_sounds();
   return 0;
+}
+
+void onWindowResize(int width, int height) {
+	Log("Window resized to %dx%d\n", width, height);
+	gl.xres = width;
+	gl.yres = height;
+#ifdef MENU_ANAHI
+	extern void calculateButtons();
+	calculateButtons();
+#endif
 }
 
 unsigned char *buildAlphaData(Image *img)
@@ -603,7 +622,13 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_enemy1, h_enemy1, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[8].data);
 	glGenTextures(1, &gl.settings_icon_Texture);
-	//-------------------------------------------------------------------------
+	
+	//must build a new set of data...
+	unsigned char *enemy1Data = buildAlphaData(&img[8]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_enemy1, h_enemy1, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, enemy1Data);
+	free(enemy1Data);
+    //-------------------------------------------------------------------------
 
 
 	glGenTextures(1, &gl.goblinTexture);
@@ -620,6 +645,11 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_goblin, h_goblin, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[9].data);
 
+	//must build a new set of data...
+	unsigned char *goblinData = buildAlphaData(&img[9]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_goblin, h_goblin, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, goblinData);
+	free(goblinData);
 
 	//settings icon texture
 	//
@@ -630,8 +660,15 @@ void initOpengl(void)
 	//
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_settings_icon, h_settings_icon, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, img[10].data);
+	
+	//must build a new set of data...
+	unsigned char *iconData = buildAlphaData(&img[10]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_settings_icon, h_settings_icon, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, iconData);
+	free(iconData);
+    //unsigned char *xIcon = buildAlphaData(&img[10]);
+    //glTexImage2D(GL_TEXTURE_2D, 0, 3, w_settings_icon, h_settings_icon, 0,
+	//		GL_RGB, GL_UNSIGNED_BYTE, img[10].data);
 	//-------------------------------------------------------------------------
 	// barrier texture
 	glGenTextures(1, &gl.barrierTexture);
@@ -790,6 +827,7 @@ void initOpengl(void)
 }
 
 void init() {
+	x11.setWindowResizeHandler(onWindowResize);
     init_sounds();
 }
 
@@ -805,18 +843,27 @@ void checkMouse(XEvent *e)
 			e->type != MotionNotify)
 		return;
 	if (e->type == ButtonRelease) {
+		if (e->xbutton.button == 1) {
+			//Left button is down
+            gl.mouse.lbutton = 0;
+        }
+		if (e->xbutton.button == 3) {
+            //Right button is down
+            gl.mouse.rbutton = 0;
+        }
 		return;
 	}
 	if (e->type == ButtonPress) {
 
 		if (e->xbutton.button==1) {
 			//Left button is down
-
+			gl.mouse.lbutton = 1;
 			push_start = true;
 
 		}
 		if (e->xbutton.button==3) {
 			//Right button is down
+			gl.mouse.rbutton = 1;
 			push_start = true;
 
 		}
@@ -826,6 +873,8 @@ void checkMouse(XEvent *e)
 			//Mouse moved
 			savex = e->xbutton.x;
 			savey = e->xbutton.y;
+			gl.mouse.x = e->xbutton.x;
+            gl.mouse.y = e->xbutton.y;
 		}
 	}
 
@@ -1031,11 +1080,17 @@ void collisions(Body *player)
 
 void render(void)
 {	
+#ifdef MENU_ANAHI
+	if (gl.mainMenu) {
+		extern void showMenu();
+		showMenu();
+	} else
+#else
 	if(!push_start)	{
 
 		extern void menu(int x, int y);
 		menu(100, gl.yres-155);
-
+#endif
 		if (gl.credits) {
 
 			//display names
@@ -1062,7 +1117,10 @@ void render(void)
 
 			return;
 		}
-	} else if (gl.gameover == false) {
+#ifndef MENU_ANAHI
+	} 
+#endif
+	else if (gl.gameover == false) {
 		Rect r;
 		//Clear the screen
 		glClearColor(0.1, 0.1, 0.1, 1.0);
@@ -1126,7 +1184,7 @@ void render(void)
 
 		// show settings icon top right
 		extern void showSettingsIcon(int x, int y, GLuint texid);
-		showSettingsIcon(gl.xres-30, gl.yres-30, gl.settings_icon_Texture);
+		showSettingsIcon(gl.xres-50, gl.yres-45, gl.settings_icon_Texture);
 
 		//display settings
 		if (gl.settings) {

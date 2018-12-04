@@ -21,7 +21,7 @@
 // maybe put an offset for x
 #define BUTTON_WIDTH 200 // px
 #define BUTTON_HEIGHT 50 // px
-#define IMG_BACKGROUND_PATH "./images/perdition_rock.png"
+#define IMG_BACKGROUND_PATH "./images/mainMenu.png"
 
 /** GLOBAL **/
 extern Global gl;
@@ -138,17 +138,17 @@ void showAnahiPicture(int x, int y, GLuint texid)
 {
     float fx = (float)x;
     float fy  = (float)y;
-    int wid = 40;
+    int width = 40;
 
     glColor3ub(255, 255, 255);
     glPushMatrix();
     glTranslatef(fx, fy, 0);
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex2f(-wid,  wid);
-        glTexCoord2f(1.0f, 0.0f); glVertex2f( wid,  wid);
-        glTexCoord2f(1.0f, 1.0f); glVertex2f( wid, -wid);
-        glTexCoord2f(0.0f, 1.0f); glVertex2f(-wid, -wid);
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(-width,  width);
+        glTexCoord2f(1.0f, 0.0f); glVertex2f( width,  width);
+        glTexCoord2f(1.0f, 1.0f); glVertex2f( width, -width);
+        glTexCoord2f(0.0f, 1.0f); glVertex2f(-width, -width);
     glEnd();
     glPopMatrix();
 }
@@ -156,30 +156,28 @@ void showAnahiPicture(int x, int y, GLuint texid)
 //show settings icon top right
 void showSettingsIcon(int x, int y, GLuint texid)
 {
-    float fx = (float)x;
+	float fx = (float)x;
     float fy  = (float)y;
-    int wid = 22;
+    int width = 35;
 
     glColor3ub(255, 255, 255);
     glPushMatrix();
     glTranslatef(fx, fy, 0);
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex2f(-wid,  wid);
-        glTexCoord2f(1.0f, 0.0f); glVertex2f( wid,  wid);
-        glTexCoord2f(1.0f, 1.0f); glVertex2f( wid, -wid);
-        glTexCoord2f(0.0f, 1.0f); glVertex2f(-wid, -wid);
+		
+    //    glTexCoord2f(0.0f, 1.0f); glVertex2f(-width, -width);
+	//	glTexCoord2f(0.0f, 0.0f); glVertex2f(-width,  width);
+	//	glTexCoord2f(1.0f, 0.0f); glVertex2f( width,  width);
+	//	glTexCoord2f(1.0f, 1.0f); glVertex2f( width, -width);
 
-    //make icon background transparent
-    glClear(GL_COLOR_BUFFER_BIT);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glEnd();
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_BLEND);
-    glPopMatrix();
- 
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(-width,  width);
+		glTexCoord2f(1.0f, 0.0f); glVertex2f( width,  width);
+		glTexCoord2f(1.0f, 1.0f); glVertex2f( width, -width);
+		glTexCoord2f(0.0f, 1.0f); glVertex2f(-width, -width);
+		
+	glEnd();
+	glPopMatrix();
 }
 
 //show settings options
@@ -194,29 +192,31 @@ void showSettings(int x, int y)
     ggprint8b(&r, 16, 0x00ffff44, "H - Help");
 }
 
-//show game control keys
+//show game keyboard controls
 void showHelp(int x, int y)
 {
     Rect r;
 
-	for (int i = 0; i < 7; i++) {
+	for (int i = 0; i < 8; i++) {
 	    r.left = x;
         r.bot = y  - 30;
 	    r.center = 0;
 	    if (i == 0) {
-            ggprint8b(&r, 16, 0x00ffff44, "W   	Walk cycle");
-        } else if (i ==1) {
-            ggprint8b(&r, 16, 0x00ffff44, "D   	walk right");
-        } else if (i == 2) {
-            ggprint8b(&r, 16, 0x00ffff44, "A   	walk left");
+			ggprint8b(&r, 16, 0x00ffff44, "Game Keyboard Controls Guide");
+		} else if (i ==1) {
+            ggprint8b(&r, 16, 0x00ffff44, "Walk Cycle - W");
+        } else if (i ==2) {
+            ggprint8b(&r, 16, 0x00ffff44, "Walk Right - D");
         } else if (i == 3) {
-            ggprint8b(&r, 16, 0x00ffff44, "E   	Explosion");
+            ggprint8b(&r, 16, 0x00ffff44, "Walk Left - A");
         } else if (i == 4) {
-            ggprint8b(&r, 16, 0x00ffff44, "+   	faster");
+            ggprint8b(&r, 16, 0x00ffff44, "Explosion - E");
         } else if (i == 5) {
-            ggprint8b(&r, 16, 0x00ffff44, "-   	slower");
+            ggprint8b(&r, 16, 0x00ffff44, "Faster	+");
         } else if (i == 6) {
-            ggprint8b(&r, 16, 0x00ffff44, "Spacebar	jump");
+            ggprint8b(&r, 16, 0x00ffff44, "Slower	-");
+        } else if (i == 7) {
+            ggprint8b(&r, 16, 0x00ffff44, "Jump - Spacebar");
         }
         //ggprint8b(&r, 16, 0x00ffff44, "frame: %i", z);
         y -= 20;
