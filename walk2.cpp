@@ -108,6 +108,7 @@ Enem *enemy2;
 Body *player;
 Floor *ground;
 Fall *obj;
+Fall *obj2;
 
 class Sprite {
 	public:
@@ -456,9 +457,10 @@ int main(void)
 	srand(time(NULL));
 	player = new Body();
 	enemy1 = new Enem(200);
-	enemy2 = new Enem(700);
+	enemy2 = new Enem(900);
 	ground = new Floor(); //========================
-	obj = new Fall[2];
+	obj = new Fall[1];
+	obj2 = new Fall[1]
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -472,7 +474,7 @@ int main(void)
 		extern void fallingObj(Fall &O, int px);
 		extern bool collision(Body *p, Enem*e, bool &go);
 		extern void moveEnemy(Enem *e);
-		extern bool c_w_fo(Body &p, Fall &o, bool go);
+		extern bool c_w_fo(Body *p, Fall &o, bool &go);
 		//extern int groundCollision(Body *p);
 		extern int barrierCollision(Body *p);
 		//extern int groundCollision(Body *p, Floor *f);
@@ -486,9 +488,10 @@ int main(void)
 		}	
 		if(rand() % 40 == 2)
 		{
-		fallingObj(obj[1], player->positionX-20);
+		fallingObj(obj2[0], player->positionX-20);
 		}
-		//c_w_fo(player, obj[0], gl.gameover);		
+		c_w_fo(player, obj[0], gl.gameover);
+		c_w_fo(player, obj2[0], gl.gameover);
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
