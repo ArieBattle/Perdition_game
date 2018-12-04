@@ -1229,6 +1229,24 @@ void render(void)
                 glEnd();
                 glPopMatrix();
 
+		//this is for falling obj
+                glPushMatrix();
+                glColor3f(1.0, 1.0, 1.0);
+                glEnable(GL_ALPHA_TEST);
+                glAlphaFunc(GL_GREATER, 0.0f);
+                glTranslatef(obj2->pX, obj2->pY, 0.0f);
+                                glBindTexture(GL_TEXTURE_2D, gl.barrierTexture);
+
+                glBegin(GL_TRIANGLE_FAN);
+
+                glTexCoord2f(0.0f, 1.0f); glVertex2i(-obj2->w, -obj2->h);
+                glTexCoord2f(0.0f, 0.0f); glVertex2i(-obj2->w, obj2->h);
+                glTexCoord2f(1.0f, 0.0f); glVertex2i(obj2->w, obj2->h);
+                glTexCoord2f(1.0f, 1.0f); glVertex2i(obj2->w, -obj2->h);
+
+                glEnd();
+                glPopMatrix();
+
 
 
 		// show settings icon top right
