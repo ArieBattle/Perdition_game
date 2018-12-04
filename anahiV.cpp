@@ -43,9 +43,9 @@ void quit();
 namespace anahi {
     /*** CONSTANTS ***/
     ButtonOptions buttOptions[] = {
-        { "Play", 0.5f, 0.8f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, play }, 
-        { "Credits", 0.5f, 0.7f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, credits }, 
-        { "Quit", 0.5f, 0.6f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, quit },
+        { "Play", 0.5f, 0.7f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, play }, 
+        { "Credits", 0.5f, 0.6f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, credits }, 
+        { "Quit", 0.5f, 0.5f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, quit },
         /*{ "Settings", 0.9f, 0.9f, 35, 35, false, 0x0, ID_PLAY, settings },*/
         { "\0", 0.0f, 0.0f, 0, 0, false, 0x0, 0 }
     };
