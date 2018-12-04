@@ -52,25 +52,21 @@ void init_sounds()
     if (alGetError() != AL_NO_ERROR) {
         printf("ERROR: alutInit()\n");
     }
-    //Clear error state
-    alGetError();
-
+    alGetError(); //clear error state
     //Listeners
     float vec[6] = {0.0f,0.0f,1.0f, 0.0f,1.0f,0.0f};
     alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
     alListenerfv(AL_ORIENTATION, vec);
     alListenerf(AL_GAIN, 1.0f);
-
     //Buffers
     alBuffer[0] = alutCreateBufferFromFile("./audio/test.wav");
     alBuffer[1] = alutCreateBufferFromFile("./audio/03_Deserted_Mansion.wav");
     alBuffer[2] = alutCreateBufferFromFile("./audio/Move1.wav");
     alBuffer[3] = alutCreateBufferFromFile("./audio/Monster6.wav");
-    alBuffer[4] = alutCreateBufferFromFile("./audio.Jump1.wav");
+    alBuffer[4] = alutCreateBufferFromFile("./audio/Jump1.wav");
     //Generate sound sources
     alGenSources(5, alSource);
-    //Set volume/pitch; creates buffers
-    //sound test
+    //Set volume/pitch; creates buffers | sound test
     alSourcei(alSource[0], AL_BUFFER, alBuffer[0]);
     alSourcef(alSource[0], AL_GAIN, 1.0f);
     alSourcef(alSource[0], AL_PITCH, 1.0f);
@@ -115,21 +111,21 @@ void init_sounds()
 
 void sound_test()
 {
-    //Sound Test only. Plays when a button is pressed.
+    //Sound Test plays when button is pressed
     alSourcePlay(alSource[0]);
     printf("Sound is playing.\n");
 }
 
 void music()
 {
-    //Plays a music theme.
+    //Plays music theme
     alSourcePlay(alSource[1]);
     printf("Music playing.\n");
 }
 
 void walking_sound()
 {
-    //Plays walking loops when a button is pressed.
+    //Plays walking loops when button is pressed
     alSourcePlay(alSource[2]);
     printf("walking sound.\n");
 }
@@ -166,10 +162,10 @@ extern void close_sounds()
     ALCcontext *Context = alcGetCurrentContext();
     //Get device for active context
     ALCdevice *Device = alcGetContextsDevice(Context);
-    //Disable context.
+    //Disable context
     alcMakeContextCurrent(NULL);
-    //Release context(s).
+    //Release context(s)
     alcDestroyContext(Context);
-    //Close device.
+    //Close device
     alcCloseDevice(Device);
 }
