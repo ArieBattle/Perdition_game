@@ -108,6 +108,7 @@ class Image;
 Enem *enemy1;
 Enem *enemy2;
 Body *player;
+Floor *ground;
 Fall *obj;
 
 class Sprite {
@@ -158,6 +159,8 @@ class Global {
 		GLuint floorAngleTexture;
 		GLuint barrierTexture;
 		GLuint spikeballTexture;
+		GLuint parachuteTexture;
+		GLuint trophyTexture;
 		Vec box[20];
 		Sprite exp;
 		Sprite exp44;
@@ -420,7 +423,7 @@ class Image {
 				unlink(ppmname);
 		}
 };
-Image img[17] = {
+Image img[19] = {
 	"./images/walk.gif",
 	"./images/exp.png",
 	"./images/exp44.png",
@@ -437,7 +440,9 @@ Image img[17] = {
 	"./images/floor.gif",
 	"./images/floorAngle.gif",
 	"./images/barrier.gif",
-        "./images/pb.gif"};
+    "./images/pb.gif",
+    "./images/parachute.gif",
+	"./images/trophy.png"};
 
 
 
@@ -449,6 +454,7 @@ int main(void)
 	player = new Body();
 	enemy1 = new Enem(200);
 	enemy2 = new Enem(700);
+	ground = new Floor(); //========================
 	obj = new Fall[2];
 	int done = 0;
 	while (!done) {
@@ -464,6 +470,11 @@ int main(void)
 		extern bool collision(Body *p, Enem*e, bool &go);
 		extern void moveEnemy(Enem *e);
 		extern bool c_w_fo(Body &p, Fall &o, bool go);
+		//extern int groundCollision(Body *p);
+		extern int barrierCollision(Body *p);
+		//extern int groundCollision(Body *p, Floor *f);
+		barrierCollision(player);
+		//groundCollision(player, ground);
 		moveEnemy(enemy1);
 		moveEnemy(enemy2);
 		if(rand() % 30 == 2)
@@ -479,7 +490,7 @@ int main(void)
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
-    cleanup_fonts();
+    //cleanup_fonts();
   }
   close_sounds();
   return 0;
@@ -675,42 +686,68 @@ void initOpengl(void)
 	//-------------------------------------------------------------------------
 	// barrier texture
 	glGenTextures(1, &gl.barrierTexture);
-	      int w_barrier = img[15].width;
-	      int h_barrier  = img[15].height;
-	      glBindTexture(GL_TEXTURE_2D, gl.barrierTexture);	
-	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	      unsigned char *xBarrier = buildAlphaData(&img[15]);	
-	      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-	      w_barrier, h_barrier,
-	      0, GL_RGBA, GL_UNSIGNED_BYTE, xBarrier);
-	      free(xBarrier);
+	int w_barrier = img[15].width;
+	int h_barrier  = img[15].height;
+	glBindTexture(GL_TEXTURE_2D, gl.barrierTexture);	
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *xBarrier = buildAlphaData(&img[15]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	w_barrier, h_barrier,
+	0, GL_RGBA, GL_UNSIGNED_BYTE, xBarrier);
+	free(xBarrier);
+	//-----------------------------------------------------------------------
+	glGenTextures(1, &gl.parachuteTexture);
+	int w_parachute = img[17].width;
+	int h_parachute  = img[17].height;
+	glBindTexture(GL_TEXTURE_2D, gl.parachuteTexture);	
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *xParachute = buildAlphaData(&img[17]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	w_parachute, h_parachute,
+	0, GL_RGBA, GL_UNSIGNED_BYTE, xParachute);
+	free(xParachute);
 	//-------------------------------------------------------------------------
 	// level texture
 	glGenTextures(1, &gl.floorTexture);
-	      int w_floor = img[13].width;
-	      int h_floor  = img[13].height;
-	      glBindTexture(GL_TEXTURE_2D, gl.floorTexture);	
-	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	      unsigned char *xFloor = buildAlphaData(&img[13]);	
-	      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-	      w_floor, h_floor,
-	      0, GL_RGBA, GL_UNSIGNED_BYTE, xFloor);
-	      free(xFloor);
+	int w_floor = img[13].width;
+	int h_floor  = img[13].height;
+	glBindTexture(GL_TEXTURE_2D, gl.floorTexture);	
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *xFloor = buildAlphaData(&img[13]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	w_floor, h_floor,
+	0, GL_RGBA, GL_UNSIGNED_BYTE, xFloor);
+	free(xFloor);
 	//------------------------------------------------------------------------
 	// level texture angle
 	glGenTextures(1, &gl.floorAngleTexture);
-	      int w_floorAngle = img[14].width;
-	      int h_floorAngle  = img[14].height;
-	      glBindTexture(GL_TEXTURE_2D, gl.floorAngleTexture);	
-	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	      unsigned char *xFloorAngle = buildAlphaData(&img[14]);	
-	      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-	      w_floorAngle, h_floorAngle,
-	      0, GL_RGBA, GL_UNSIGNED_BYTE, xFloorAngle);
-	      free(xFloorAngle);
+	int w_floorAngle = img[14].width;
+	int h_floorAngle  = img[14].height;
+	glBindTexture(GL_TEXTURE_2D, gl.floorAngleTexture);	
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *xFloorAngle = buildAlphaData(&img[14]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	w_floorAngle, h_floorAngle,
+	0, GL_RGBA, GL_UNSIGNED_BYTE, xFloorAngle);
+	free(xFloorAngle);
+	//-----------------------------------------------------------------------
+	// level texture
+	glGenTextures(1, &gl.trophyTexture);
+	int w_trophy = img[18].width;
+	int h_trophy  = img[18].height;
+	glBindTexture(GL_TEXTURE_2D, gl.trophyTexture);	
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *xTrophy = buildAlphaData(&img[18]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	w_trophy, h_trophy,
+	0, GL_RGBA, GL_UNSIGNED_BYTE, xTrophy);
+	free(xTrophy);
+
 	//-----------------------------------------------------------------------
 	//perdition texture - title screen
 
@@ -1009,7 +1046,9 @@ int checkKeys(XEvent *e)
 			//if spacebar is hit jump (?)
 				if (gl.keys[XK_space]) {
 					extern void jump(Body *p);
+					extern void parachute(Body *p, GLuint textid);
 					jump(player);
+					parachute(player, gl.parachuteTexture);
 				}
 			break;
 		case XK_a:
@@ -1172,7 +1211,7 @@ void render(void)
                 glEnable(GL_ALPHA_TEST);
                 glAlphaFunc(GL_GREATER, 0.0f);
                 glTranslatef(obj->pX, obj->pY, 0.0f);
-		glBindTexture(GL_TEXTURE_2D, gl.barrierTexture);
+				glBindTexture(GL_TEXTURE_2D, gl.barrierTexture);
 
 		glBegin(GL_TRIANGLE_FAN);
                 
@@ -1210,12 +1249,13 @@ void render(void)
 		//float cx = gl.xres/2.0;
 		//float cy = gl.yres/2.0;
 		//
-		
+		extern void trophy(int x, int y, GLuint texid);
+		//trophy(1000, 1000, gl.trophyTexture);
 		//create floor
 		extern void createFloor(int x, int y, GLuint texid);
 		extern void createFloorAngle(int x, int y, GLuint texid);
 		int xGround=0;
-		int yGround=10;
+		int yGround=10; //10, so it can be on screen
 		
 		//each ground block is 32 pixels wide
 		//1st floor
@@ -1230,6 +1270,7 @@ void render(void)
 	    createFloor(1568, 138, gl.floorTexture);
 	    createFloor(1568, 170, gl.floorTexture);
 	    createFloor(1568, 202, gl.floorTexture);
+
 	    //2nd floor
 	    int y2ndFloor =362;
 	    int x2ndFloor =0;

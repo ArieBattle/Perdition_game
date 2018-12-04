@@ -4,7 +4,9 @@
 
 #include "fonts.h"
 #include <GL/glx.h>
-
+#include "charclass.h"
+#include <iostream>
+using namespace std;
 
 
 extern void showFranciscoName(int x, int y)
@@ -106,4 +108,70 @@ void createFloorAngle(int x, int y, GLuint texid)
     glPopMatrix();
 }
 
+void parachute(Body *p, GLuint texid) 
+{
+	float parachutePosX = p->positionX;
+	float parachutePosY = p->positionY;
+	if (p->positionY >=1) {
+		glColor3ub(255, 255, 255);
+    	int wid = 40;
+    	glPushMatrix();
+    	glTranslatef(parachutePosX, parachutePosY , 0);
+    	//glRotatef(0.0f, 0.0f, 1.0f);
+    	glBindTexture(GL_TEXTURE_2D, texid);
+    	glBegin(GL_QUADS);
+   		glTexCoord2f(0.0f, 0.0f); glVertex2f(-wid, wid);
+    	glTexCoord2f(1.0f, 0.0f); glVertex2f(wid, wid);
+    	glTexCoord2f(1.0f, 1.0f); glVertex2f(wid, -wid);
+    	glTexCoord2f(0.0f, 1.0f); glVertex2f(-wid, -wid);
+    	glEnd();
+    	glPopMatrix();
+    }
+}
+
+int barrierCollision(Body *p)
+{
+    if (p->positionX != 0) {
+        if (p->positionX > 0 && p->positionX <1600) {
+            return p->positionX;
+        }
+        if (p->positionX < 0) {
+            return p->positionX = 20;
+        }
+        if (p->positionX > 1500) {
+            return p->positionX = 1480;
+        }
+        
+    }return 0;
+}
+ /*int groundCollision(Body *p, Floor *f) {
+     if ((p->positionY)-p->height <= f->yground) {
+         return p->positionY;
+     }
+     if ((p->positionY)-p->height > f->step1 && p->positionX <= 448) {
+         p->positionY = 62;
+         return p->positionY;
+     }
+     
+ }*/
+
+ void trophy(int x, int y, GLuint texid)
+{
+
+    int width = 16;
+    
+	glColor3ub(255, 255, 255);
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    glBindTexture(GL_TEXTURE_2D, texid);
+    glBegin(GL_QUADS);
+
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(-width,  -width);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f( -width,  width);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f( width, width);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(width, -width);
+
+    glEnd();
+    glPopMatrix();
+}
 

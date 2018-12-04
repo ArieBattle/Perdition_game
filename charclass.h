@@ -18,6 +18,25 @@ class Body {
 		}
 };
 
+class Floor {
+	public:
+		int xLeft;
+		int xRight;
+		int step1;
+		int yground;
+		int yfloor2;
+		int yfloor3;
+		Floor()
+		{
+			xLeft = 0;
+			xRight = 1500;
+			step1 = 20;
+			yground = 0;
+			yfloor2 = 362;
+			yfloor3 = 618;
+		}
+};
+
 class Enem {
 	public:
 		int wid;
