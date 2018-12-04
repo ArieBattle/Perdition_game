@@ -70,9 +70,11 @@ void render();
 //extern void functions
 extern void init_sounds();
 extern void sound_test();
-extern void walking_sound();
-extern void close_sounds();
 extern void music();
+extern void walking_sound();
+extern void enemy_sound();
+extern void jump_sound();
+extern void close_sounds();
 int i = 15;
 int health = 100;
 //-----------------------------------------------------------------------------
@@ -472,7 +474,8 @@ int main(void)
 		{
 		fallingObj(obj[1], player->positionX-20);
 		}
-		//c_w_fo(player, obj[0], gl.gameover);		
+		//c_w_fo(player, obj[0], gl.gameover);
+		enemy_sound();
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
@@ -1002,6 +1005,7 @@ int checkKeys(XEvent *e)
 			gl.helpTab ^= 1;
 			break;	
 		case XK_space:
+			jump_sound();
 			//if spacebar is hit jump (?)
 				if (gl.keys[XK_space]) {
 					extern void jump(Body *p);
