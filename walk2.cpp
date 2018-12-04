@@ -1036,9 +1036,6 @@ int checkKeys(XEvent *e)
 		case XK_Escape:
 			return 1;
 			break;
-		case XK_o:
-			gl.settings ^= 1;
-			break;
 		case XK_c:
 			gl.credits ^= 1;
 			break;
@@ -1253,20 +1250,15 @@ void render(void)
 		extern void showSettingsIcon(int x, int y, GLuint texid);
 		showSettingsIcon(gl.xres-50, gl.yres-45, gl.settings_icon_Texture);
 
-		//display options in settings
-		if (gl.settings) {
-			extern void showSettings(int x, int y);
-			showSettings(100, gl.yres-100);
-			return;
-		}
-
+		
 		if (gl.helpTab) {
 			extern void showHelpTab(int x, int y, GLuint texid);
 			extern void showHelpText(int x, int y);
-			extern void showHelp(int x, int y);
 			showHelpTab(250, 475, gl.cactusTexture);
 			showHelpText(450, 450); 
-			showHelp(50, gl.yres-60);
+			
+			extern void showControls(int x, int y);
+			showControls(900, gl.yres-350);
 			return;
 		}
 
@@ -1437,7 +1429,6 @@ void render(void)
 		r.center = 0;
 		ggprint8b(&r, 16, 0x00ffff44, "H    	Help/Info");
 		ggprint8b(&r, 16, 0x00ffff44, "N        Sound Test");
-		ggprint8b(&r, 16, 0x00ffff44, "O    	Settings");
 		ggprint8b(&r, 16, 0x00ffff44, "E        Exit");
 
 		if (gl.movie) {

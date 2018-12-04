@@ -195,6 +195,8 @@ public:
 	GLuint floorAngleTexture;
 	GLuint barrierTexture;
 	GLuint spikeballTexture;
+	GLuint parachuteTexture;
+	GLuint trophyTexture;
 	Vec box[20];
 	Sprite exp;
 	Sprite exp44;
