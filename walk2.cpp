@@ -454,9 +454,8 @@ int main(void)
 	player = new Body();
 	enemy1 = new Enem(200);
 	enemy2 = new Enem(900);
-	ground = new Floor(); //========================
 	obj = new Fall[1];
-	obj2 = new Fall[1]
+	obj2 = new Fall[1];
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
