@@ -20,6 +20,7 @@
 #define BUTTON_WIDTH 200 // px
 #define BUTTON_HEIGHT 50 // px
 #define IMG_BACKGROUND_PATH "./images/mainMenu.gif"
+#define GAME_CONTROLS "./images/controls.png"	
 
 // groupId 
 #define ID_MENU 0
@@ -46,12 +47,13 @@ namespace anahi {
 		{ "Credits", 0.5f, 0.7f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, credits }, 
 		{ "Quit", 0.5f, 0.6f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, quit },
 		/*{ "Settings", 0.9f, 0.9f, 35, 35, false, 0x0, ID_PLAY, settings },*/
-		{ "\0", 0.0f, 0.0f, 0, 0, false, 0x0, NULL }
+		{ "\0", 0.0f, 0.0f, 0, 0, false, 0x0, 0 }
 	};
 	
 	int activeMenu;
     int initialized, nbuttons;
     GLuint backgroundTex;
+	GLuint controlsTex;
     Button buttons[4];
 	int buttonGroupIds[4];
 }
@@ -61,6 +63,7 @@ void initMenu()
     Rect rec;
     Button newButton;
     Image p2(IMG_BACKGROUND_PATH);
+	Image pc(GAME_CONTROLS);
 
     int i = 0;
 /*  int x = gl.xres / 2; // x position at middle
@@ -73,6 +76,14 @@ void initMenu()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, p2.width, p2.height, 0,
 	    GL_RGB, GL_UNSIGNED_BYTE, p2.data);
+		
+	//game controls image
+    glGenTextures(1, &anahi::controlsTex);
+    glBindTexture(GL_TEXTURE_2D, anahi::controlsTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, pc.width, pc.height, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, pc.data);
 
     while (strcmp(anahi::buttOptions[i].text, "\0")) {
         // dimensions of button
@@ -206,20 +217,29 @@ void settings()
 	anahi::activeMenu = ID_SETTINGS;
 }
 */
-//show options in settings
-void showSettings(int x, int y)
-{
-    Rect r;
-
-    r.bot = y - 30;
-    r.left = x + 20;
-    r.center = 0;
-    ggprint8b(&r, 16, 0x00ffff44, "H - Help");
-}
 
 //show game keyboard controls
-void showHelp(int x, int y)
+void showControls(int x, int y)
 {
+#ifdef GAME_CONTROLS
+	float fx = (float)x;
+    float fy  = (float)y;
+    int width = 250;
+	int height = 200;
+
+    glColor3ub(255, 255, 255);
+    glPushMatrix();
+    glTranslatef(fx, fy, 0);
+    glBindTexture(GL_TEXTURE_2D, anahi::controlsTex);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(-width,  height); 
+        glTexCoord2f(1.0f, 0.0f); glVertex2f( width,  height);
+        glTexCoord2f(1.0f, 1.0f); glVertex2f( width, -height);
+        glTexCoord2f(0.0f, 1.0f); glVertex2f(-width, -height);
+    glEnd();
+    glPopMatrix();
+
+#else
    Rect r;
 
 	for (int i = 0; i < 8; i++) {
@@ -244,7 +264,7 @@ void showHelp(int x, int y)
         
         y -= 20;
    }
-   
+#endif  
 }
 
 void showMenu()
@@ -258,9 +278,6 @@ void showMenu()
     }
     checkButtons(); // check state of the buttons on screen
     //draw buttons, highlight the button with mouse cursor over
-
-    // glPushMatrix();
-    // glTranslatef(, , 0);
     
     glBindTexture(GL_TEXTURE_2D, anahi::backgroundTex);
     glBegin(GL_QUADS);
@@ -270,7 +287,7 @@ void showMenu()
         glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, gl.yres);
         glTexCoord2f(0.0f, 1.0f); glVertex2i(gl.xres, 0);
     glEnd();
-    // glPopMatrix();
+
     for (int i = 0; i < anahi::nbuttons; i++) {
         Button *button = &anahi::buttons[i];
 
