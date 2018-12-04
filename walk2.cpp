@@ -491,10 +491,9 @@ int main(void)
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
-<<<<<<< HEAD
+
     //cleanup_fonts();
-=======
->>>>>>> e3975cb98115896c49cdc63c3a34db4439127dc4
+
   }
   close_sounds();
   return 0;
