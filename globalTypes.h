@@ -33,7 +33,7 @@ typedef struct t_button {
     Rect r;
     void (*onClick)();
     char text[32];
-    int id;
+    int id; 
     int over;   // cursor is over the button
     int down;   // cursor is holding down on the button
     int click;  // cursor has stopped holding down inside button perimeter, registering as a button click
@@ -43,9 +43,13 @@ typedef struct t_button {
 } Button;
 typedef struct t_butt_options {
 	char text[32];
+	float x; //between 0 and 1
+	float y; //between 0 and 1 
     int width;
     int height;
+	bool highlight;
     unsigned int text_color;
+	int groupId;
 	void (*onClick)();
 } ButtonOptions;
 typedef struct t_mouse {
@@ -162,39 +166,43 @@ public:
  */
 class Global {
 public:
-    unsigned char keys[65536];
-    int xres, yres;
-    int movie, movieStep;
-    int mainMenu;
-    int walk;
-    int credits;
-    int walkFrame;
-    int settings;
-    int helpTab;
-    int showRain;
-    double delay;
-    bool gameover;
-    Image *walkImage;
-    GLuint walkTexture;
-    GLuint mariogm734Texture;
-    GLuint tinaTexture;
-    GLuint animeTexture;
-    GLuint jeremyTexture;
-    GLuint cactusTexture;
-    GLuint enemy1Texture;
-    GLuint goblinTexture;
-    GLuint gameoverTexture;
-    GLuint settings_icon_Texture;
-    GLuint perditionTexture;
-    GLuint bloodsplatterTexture;
-    Vec box[20];
-    Sprite exp;
-    Sprite exp44;
-    Vec ball_pos;
-    Vec ball_vel;
-    Mouse mouse;
-    //camera is centered at (0,0) lower-left of screen. 
-    Flt camera[2];
+	unsigned char keys[65536];
+	int xres, yres;
+	int mainMenu;
+	int movie, movieStep;
+	int walk;
+	int credits;
+	int walkFrame;
+	int settings;
+	int helpTab;
+	int showRain;
+	double delay;
+	bool gameover;
+	Image *walkImage;
+	GLuint walkTexture;
+	GLuint mariogm734Texture;
+	GLuint tinaTexture;
+	GLuint animeTexture;
+	GLuint jeremyTexture;
+	GLuint cactusTexture;
+	GLuint enemy1Texture;
+	GLuint goblinTexture;
+	GLuint gameoverTexture;
+	GLuint settings_icon_Texture;
+	GLuint perditionTexture;
+	GLuint bloodsplatterTexture;
+	GLuint floorTexture;
+	GLuint floorAngleTexture;
+	GLuint barrierTexture;
+	GLuint spikeballTexture;
+	Vec box[20];
+	Sprite exp;
+	Sprite exp44;
+	Vec ball_pos;
+	Vec ball_vel;
+	//camera is centered at (0,0) lower-left of screen. 
+	Flt camera[2];
+	Mouse mouse;
     ~Global();
     Global();
 };
