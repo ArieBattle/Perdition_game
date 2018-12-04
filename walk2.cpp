@@ -51,7 +51,7 @@ typedef struct t_mouse {
 			     (c)[1]=(a)[1]-(b)[1]; \
 (c)[2]=(a)[2]-(b)[2]
 #define SPACE_BAR 0x20
-//#define MENU_ANAHI // switches between menu implementations
+#define MENU_ANAHI // switches between menu implementations
 
 //constants
 const float timeslice = 1.0f;
@@ -70,11 +70,9 @@ void render();
 //extern void functions
 extern void init_sounds();
 extern void sound_test();
-extern void music();
 extern void walking_sound();
-extern void enemy_sound();
-extern void jump_sound();
 extern void close_sounds();
+extern void music();
 int i = 15;
 int health = 100;
 //-----------------------------------------------------------------------------
@@ -172,7 +170,6 @@ class Global {
 		Global() {
 			logOpen();
 			showRain = 0;
-			camera[0] = camera[1] = 0.0;
 			mainMenu = 1;
 			movie=0;
 			movieStep=2;
@@ -195,6 +192,7 @@ class Global {
 			exp44.frame=0;
 			exp44.image=NULL;
 			exp44.delay = 0.022;
+			camera[0] = camera[1] = 0.0;
 			for (int i=0; i<20; i++) {
 				box[i][0] = rnd() * xres;
 				box[i][1] = rnd() * (yres-220) + 220.0;
@@ -319,7 +317,8 @@ class X11_wrapper {
 			Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
 			swa.colormap = cmap;
 			swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
-				StructureNotifyMask | SubstructureNotifyMask;
+					ButtonPress | ButtonReleaseMask | PointerMotionMask |
+					StructureNotifyMask | SubstructureNotifyMask;
 			win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
 					vi->depth, InputOutput, vi->visual,
 					CWColormap | CWEventMask, &swa);
@@ -474,8 +473,7 @@ int main(void)
 		{
 		fallingObj(obj[1], player->positionX-20);
 		}
-		//c_w_fo(player, obj[0], gl.gameover);
-		enemy_sound();
+		//c_w_fo(player, obj[0], gl.gameover);		
 		collision(player, enemy1, gl.gameover);
 		collision(player, enemy2, gl.gameover);
 		x11.swapBuffers();
@@ -624,7 +622,7 @@ void initOpengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_enemy1, h_enemy1, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[8].data);
-	glGenTextures(1, &gl.settings_icon_Texture);
+	
 	
 	//must build a new set of data...
 	unsigned char *enemy1Data = buildAlphaData(&img[8]);	
@@ -634,10 +632,11 @@ void initOpengl(void)
     //-------------------------------------------------------------------------
 
 
-	glGenTextures(1, &gl.goblinTexture);
+	
 	//-------------------------------------------------------------------------
 	//goblin texture
 	//
+	glGenTextures(1, &gl.goblinTexture);
 	int w_goblin = img[9].width;
 	int h_goblin = img[9].height;
 	//
@@ -647,31 +646,31 @@ void initOpengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w_goblin, h_goblin, 0,
 			GL_RGB, GL_UNSIGNED_BYTE, img[9].data);
-
+	
 	//must build a new set of data...
 	unsigned char *goblinData = buildAlphaData(&img[9]);	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_goblin, h_goblin, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, goblinData);
 	free(goblinData);
-
+	
+	//-------------------------------------------------------------------------	
 	//settings icon texture
-	//
+	glGenTextures(1, &gl.settings_icon_Texture);
 	int w_settings_icon = img[10].width;
 	int h_settings_icon  = img[10].height;
-	//
+	
 	glBindTexture(GL_TEXTURE_2D, gl.settings_icon_Texture);
-	//
+	
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	
 	
 	//must build a new set of data...
 	unsigned char *iconData = buildAlphaData(&img[10]);	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w_settings_icon, h_settings_icon, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, iconData);
 	free(iconData);
-    //unsigned char *xIcon = buildAlphaData(&img[10]);
-    //glTexImage2D(GL_TEXTURE_2D, 0, 3, w_settings_icon, h_settings_icon, 0,
-	//		GL_RGB, GL_UNSIGNED_BYTE, img[10].data);
+    
 	//-------------------------------------------------------------------------
 	// barrier texture
 	glGenTextures(1, &gl.barrierTexture);
@@ -878,6 +877,7 @@ void checkMouse(XEvent *e)
 			savey = e->xbutton.y;
 			gl.mouse.x = e->xbutton.x;
             gl.mouse.y = e->xbutton.y;
+			Log("checkMouse(): gl.mouse.y -- %d\n", gl.mouse.y);
 		}
 	}
 
@@ -1005,7 +1005,6 @@ int checkKeys(XEvent *e)
 			gl.helpTab ^= 1;
 			break;	
 		case XK_space:
-			jump_sound();
 			//if spacebar is hit jump (?)
 				if (gl.keys[XK_space]) {
 					extern void jump(Body *p);
@@ -1087,7 +1086,10 @@ void render(void)
 #ifdef MENU_ANAHI
 	if (gl.mainMenu) {
 		extern void showMenu();
+		Log("render() -- &gl.mouse: %x\n", &gl.mouse);
+		Log("render() before showMenu: gl.mouse.y -- %d\n", gl.mouse.y);
 		showMenu();
+		Log("render() after showMenu: gl.mouse.y -- %d\n", gl.mouse.y);
 	} else
 #else
 	if(!push_start)	{
