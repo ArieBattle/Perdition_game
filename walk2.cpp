@@ -487,7 +487,6 @@ int main(void)
 		{
 		fallingObj(obj2[0], player->positionX-20);
 		}
-		enemy_sound();
 		c_w_fo(player, obj[0], gl.gameover);
 		c_w_fo(player, obj2[0], gl.gameover);
 		collision(player, enemy1, gl.gameover);
