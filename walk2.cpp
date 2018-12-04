@@ -440,13 +440,10 @@ Image img[19] = {
 	"./images/floor.gif",
 	"./images/floorAngle.gif",
 	"./images/barrier.gif",
-<<<<<<< HEAD
     "./images/pb.gif",
     "./images/parachute.gif",
 	"./images/trophy.png"};
-=======
-    "./images/pb.gif"};
->>>>>>> e3975cb98115896c49cdc63c3a34db4439127dc4
+
 
 
 
