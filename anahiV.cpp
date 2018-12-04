@@ -1,5 +1,5 @@
 // author: Anahi Vargas
-// date: 11/11/2018
+// date: 12/04/2018
 
 /*** INCLUDE ***/
 #include <GL/glx.h>
@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <cmath>
 #include <exception>
-
 #include "fonts.h"
 #include "log.h"
 #include "globalTypes.h"
@@ -18,10 +17,15 @@
 #define BUTTON_TEXT_COLOR 0x00ffffff
 #define BUTTON_SPACING 90 // px
 #define BUTTON_Y_OFFSET -100 // px
-// maybe put an offset for x
 #define BUTTON_WIDTH 200 // px
 #define BUTTON_HEIGHT 50 // px
 #define IMG_BACKGROUND_PATH "./images/mainMenu.gif"
+
+// groupId 
+#define ID_MENU 0
+#define ID_SETTINGS 1
+#define ID_CREDITS 2
+#define ID_PLAY 10
 
 /** GLOBAL **/
 extern Global gl;
@@ -30,21 +34,26 @@ extern Global gl;
 void checkButtons();
 void initMenu();
 void play();
-void options();
+void credits();
 void quit();
+//void settings();
 
 // avoids polluting global namespace
 namespace anahi {
     /*** CONSTANTS ***/
 	ButtonOptions buttOptions[] = {
-		{ "Play", BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TEXT_COLOR, play }, 
-		{ "Options", BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TEXT_COLOR, options}, 
-		{ "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_TEXT_COLOR, quit },
-		{ "\0", 0, 0, 0x0, NULL }
+		{ "Play", 0.5f, 0.8f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, play }, 
+		{ "Credits", 0.5f, 0.7f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, credits }, 
+		{ "Quit", 0.5f, 0.6f, BUTTON_WIDTH, BUTTON_HEIGHT, true, BUTTON_TEXT_COLOR, ID_MENU, quit },
+		/*{ "Settings", 0.9f, 0.9f, 35, 35, false, 0x0, ID_PLAY, settings },*/
+		{ "\0", 0.0f, 0.0f, 0, 0, false, 0x0, NULL }
 	};
+	
+	int activeMenu;
     int initialized, nbuttons;
     GLuint backgroundTex;
-    Button buttons[3];
+    Button buttons[4];
+	int buttonGroupIds[4];
 }
 
 void initMenu()
@@ -54,9 +63,9 @@ void initMenu()
     Image p2(IMG_BACKGROUND_PATH);
 
     int i = 0;
-    int x = gl.xres / 2; // x position at middle
-    int y = (gl.yres - (gl.yres / 3)) + BUTTON_Y_OFFSET; // y position at first third portion
-    Log("initMenu() -- x: %d, y: %d\n", x, y);
+/*  int x = gl.xres / 2; // x position at middle
+    int y = (gl.yres - (gl.yres / 3)) + BUTTON_Y_OFFSET; // y position at first third portion */
+	
     //main menu background image
     glGenTextures(1, &anahi::backgroundTex);
     glBindTexture(GL_TEXTURE_2D, anahi::backgroundTex);
@@ -67,20 +76,20 @@ void initMenu()
 
     while (strcmp(anahi::buttOptions[i].text, "\0")) {
         // dimensions of button
-        rec.width = anahi::buttOptions[i].width;
-        rec.height = anahi::buttOptions[i].height;
-        rec.left = x;
-        rec.bot = y;
+		ButtonOptions *options = &anahi::buttOptions[i];
+		
+        rec.width = options->width;
+        rec.height = options->height;
+        rec.left = (int)(gl.xres * options->x);
+        rec.bot = (int)(gl.yres * options->y);
         rec.right = rec.left + rec.width;
         rec.top = rec.bot + rec.height;
         rec.centerx = (rec.left + rec.right) / 2;
         rec.centery = (rec.bot + rec.top) / 2;
 
-      // button attributes and states
-        strcpy(newButton.text, anahi::buttOptions[i].text);
-        MakeRGBA(newButton.color, 0.4f, 0.4f, 0.7f, 1.0);
-	//Black buttons
-       // MakeRGBA(newButton.color, 0.1f, 0.1f, 0.1f, 1.0);
+        //button attributes and states
+        strcpy(newButton.text, options->text);	    
+        MakeRGBA(newButton.color, 0.1f, 0.1f, 0.1f, 1.0);
         MakeRGBA(newButton.dcolor, newButton.color[0] * 0.5f,
             newButton.color[1] * 0.5f,
             newButton.color[2] * 0.5f,
@@ -91,14 +100,30 @@ void initMenu()
         newButton.down = 0;
         newButton.click = 0;
         newButton.text_color = BUTTON_TEXT_COLOR;
-		newButton.onClick = anahi::buttOptions[i].onClick;
+		newButton.onClick = options->onClick;
 
         anahi::buttons[i++] = newButton;
         anahi::nbuttons++;
-        y -= BUTTON_SPACING;
+        //y -= BUTTON_SPACING;
         Log("initMenu() -- buttId: %d | centerx: %d | centery: %d\n", i, rec.centerx, rec.centery);
     }
 }
+
+/*void calculate() {
+	for (int i = 0; i < anahi::nbuttons; ++i) {
+        Button *button = &anahi::buttons[i];
+
+        button->r.left = (int)(gl.xres * options->x);
+        button->r.bot = (int)(gl.yres * options->y);
+        button->r.right = button->r.left + button->r.width;
+        button->r.top = button->r.bot + button->r.height;
+        button->r.centerx = (button->r.left + button->r.right) / 2;
+        button->r.centery = (button->r.bot + button->r.top) / 2;
+        Log("calculateButtons() -- %s -> r.left: %d -- r.right: %d -- r.bot: %d -- r.top: %d\n",
+            button->text, button->r.left, button->r.right, button->r.bot, button->r.top);
+    }
+}
+*/
 
 //adjust button location according to screen size
 void calculateButtons() {
@@ -166,11 +191,6 @@ void showSettingsIcon(int x, int y, GLuint texid)
     glBindTexture(GL_TEXTURE_2D, texid);
     glBegin(GL_QUADS);
 		
-    //    glTexCoord2f(0.0f, 1.0f); glVertex2f(-width, -width);
-	//	glTexCoord2f(0.0f, 0.0f); glVertex2f(-width,  width);
-	//	glTexCoord2f(1.0f, 0.0f); glVertex2f( width,  width);
-	//	glTexCoord2f(1.0f, 1.0f); glVertex2f( width, -width);
-
         glTexCoord2f(0.0f, 0.0f); glVertex2f(-width,  width);
 		glTexCoord2f(1.0f, 0.0f); glVertex2f( width,  width);
 		glTexCoord2f(1.0f, 1.0f); glVertex2f( width, -width);
@@ -180,7 +200,13 @@ void showSettingsIcon(int x, int y, GLuint texid)
 	glPopMatrix();
 }
 
-//show settings options
+/*//settings button
+void settings()
+{
+	anahi::activeMenu = ID_SETTINGS;
+}
+*/
+//show options in settings
 void showSettings(int x, int y)
 {
     Rect r;
@@ -188,14 +214,13 @@ void showSettings(int x, int y)
     r.bot = y - 30;
     r.left = x + 20;
     r.center = 0;
-    ggprint8b(&r, 16, 0x00ffff44, "C - Credits");
     ggprint8b(&r, 16, 0x00ffff44, "H - Help");
 }
 
 //show game keyboard controls
 void showHelp(int x, int y)
 {
-    Rect r;
+   Rect r;
 
 	for (int i = 0; i < 8; i++) {
 	    r.left = x;
@@ -204,23 +229,22 @@ void showHelp(int x, int y)
 	    if (i == 0) {
 			ggprint8b(&r, 16, 0x00ffff44, "Game Keyboard Controls Guide");
 		} else if (i ==1) {
-            ggprint8b(&r, 16, 0x00ffff44, "Walk Cycle - W");
+            ggprint8b(&r, 16, 0x00ffff44, "Walk Cycle	W");
         } else if (i ==2) {
-            ggprint8b(&r, 16, 0x00ffff44, "Walk Right - D");
+            ggprint8b(&r, 16, 0x00ffff44, "Walk Right	->");
         } else if (i == 3) {
-            ggprint8b(&r, 16, 0x00ffff44, "Walk Left - A");
-        } else if (i == 4) {
-            ggprint8b(&r, 16, 0x00ffff44, "Explosion - E");
+            ggprint8b(&r, 16, 0x00ffff44, "Walk Left	<-");
         } else if (i == 5) {
             ggprint8b(&r, 16, 0x00ffff44, "Faster	+");
         } else if (i == 6) {
             ggprint8b(&r, 16, 0x00ffff44, "Slower	-");
         } else if (i == 7) {
-            ggprint8b(&r, 16, 0x00ffff44, "Jump - Spacebar");
+            ggprint8b(&r, 16, 0x00ffff44, "Jump		Spacebar");
         }
-        //ggprint8b(&r, 16, 0x00ffff44, "frame: %i", z);
+        
         y -= 20;
    }
+   
 }
 
 void showMenu()
@@ -305,12 +329,18 @@ void play()
 {
   Log("Play button clicked\n");
   gl.mainMenu = 0;
+  anahi::activeMenu = ID_PLAY;
 }
 
-//options button will go here
-void options()
+//credits button will go here
+void credits()
 {
-  Log("Options button clicked\n");
+  Log("Credits button clicked\n");
+  gl.credits = 1;
+  anahi::activeMenu = ID_CREDITS;
+  gl.mainMenu = 0;
+  anahi::activeMenu = ID_MENU;
+  checkButtons();
 }
 
 //quit button will go here
@@ -331,6 +361,7 @@ void checkButtons()
 
         int compliment_y = abs(gl.yres - gl.mouse.y);
         // check for cursor over button
+		Log("checkButtons() -- &gl.mouse: %x\n", &gl.mouse);
         Log("mouse x: %d -- r.left: %d -- r.right: %d\nmouse y: %d -- r.bot: %d -- r.top: %d\n",
                 gl.mouse.x, button->r.left, button->r.right, gl.mouse.y, 
                 button->r.bot, button->r.top);

@@ -436,7 +436,7 @@ Image img[17] = {
 	"./images/floor.gif",
 	"./images/floorAngle.gif",
 	"./images/barrier.gif",
-        "./images/pb.gif"};
+    "./images/pb.gif"};
 
 
 
@@ -1085,10 +1085,7 @@ void render(void)
 #ifdef MENU_ANAHI
 	if (gl.mainMenu) {
 		extern void showMenu();
-		Log("render() -- &gl.mouse: %x\n", &gl.mouse);
-		Log("render() before showMenu: gl.mouse.y -- %d\n", gl.mouse.y);
 		showMenu();
-		Log("render() after showMenu: gl.mouse.y -- %d\n", gl.mouse.y);
 	} else
 #else
 	if(!push_start)	{
@@ -1119,6 +1116,9 @@ void render(void)
 			showFranciscoPicture(250, gl.yres-350, gl.jeremyTexture);
 			showTheodorePicture(250, gl.yres-100, gl.mariogm734Texture);
 			showAriellePic(250, gl.yres-220, gl.animeTexture);
+			
+			extern void credits();
+			credits();
 
 			return;
 		}
@@ -1191,7 +1191,7 @@ void render(void)
 		extern void showSettingsIcon(int x, int y, GLuint texid);
 		showSettingsIcon(gl.xres-50, gl.yres-45, gl.settings_icon_Texture);
 
-		//display settings
+		//display options in settings
 		if (gl.settings) {
 			extern void showSettings(int x, int y);
 			showSettings(100, gl.yres-100);
