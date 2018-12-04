@@ -106,7 +106,6 @@ class Image;
 Enem *enemy1;
 Enem *enemy2;
 Body *player;
-Floor *ground;
 Fall *obj;
 Fall *obj2;
 
