@@ -21,7 +21,7 @@
 // maybe put an offset for x
 #define BUTTON_WIDTH 200 // px
 #define BUTTON_HEIGHT 50 // px
-#define IMG_BACKGROUND_PATH "./images/mainMenu.png"
+#define IMG_BACKGROUND_PATH "./images/mainMenu.gif"
 
 /** GLOBAL **/
 extern Global gl;
