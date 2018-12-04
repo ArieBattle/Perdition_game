@@ -1,4 +1,7 @@
 #include<cstdlib>
+#include <string.h>
+#include <iostream>
+using namespace std;
 
 class Body {
 	public:
@@ -18,25 +21,6 @@ class Body {
 		}
 };
 
-class Floor {
-	public:
-		int xLeft;
-		int xRight;
-		int step1;
-		int yground;
-		int yfloor2;
-		int yfloor3;
-		Floor()
-		{
-			xLeft = 0;
-			xRight = 1500;
-			step1 = 20;
-			yground = 0;
-			yfloor2 = 362;
-			yfloor3 = 618;
-		}
-};
-
 class Enem {
 	public:
 		int wid;
@@ -48,7 +32,7 @@ class Enem {
 		bool patrol;
 		Enem()
 		{
-			wid = 35;
+			wid = 90;
 			hgt = 35;
 			posX = 200;
 			posY = 0;
@@ -59,7 +43,7 @@ class Enem {
 		Enem(float pos)
 		{	
 
-			wid = 50;
+			wid = 90;
 			hgt = 90;
 			posY = 0;
 			velY = 0.0f;
@@ -92,3 +76,16 @@ class Fall {
 		}
 };
 
+class Coins {
+	public:
+		int wc;
+		int hc;
+		float pcX;
+		float pcY;
+		Coins () {
+			wc = 15;
+			hc = 15;
+			pcX = 0;
+			pcY = 0;
+		}
+};

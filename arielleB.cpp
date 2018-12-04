@@ -100,7 +100,6 @@ void showEnemy1(int x, int y, GLuint texid)
 	glPopMatrix();
 }
 
-
 void showGoblin(int x, int y, GLuint texid)
 {
 	glColor3ub(255, 255, 255);
@@ -146,10 +145,7 @@ void menu (int x, int y)
 	ggprint8b(&b, 40, 0x00ffff44, "PRESS S TO START");
 	ggprint8b(&c, 40, 0x00ffff44, "PRESS E TO EXIT");
 	ggprint8b(&d, 40, 0x00ffff44, "PRESS C FOR CREDITS");
-
 }
-
-
 
 void jump (Body *p)
 {
@@ -158,7 +154,6 @@ void jump (Body *p)
 
 	if(p->positionY == 0)
 	{
-
 		if (p->velocityX > 0)
 		{
 			p->positionX += p->velocityX;
@@ -168,9 +163,6 @@ void jump (Body *p)
 
 		if (p->positionY < 400 && inAir == false)
 		{
-
-
-
 			p->positionY +=(10*gravity);
 		}
 		else if (p->positionY >= 1200)
@@ -217,10 +209,14 @@ void fallingObj (Fall &O, int px)
 	O.pY -= O.grav;
 
 }
-
-bool c_w_fo(Body &pl, Fall &o, bool &go)
+int distance(int x1, int x2, int y1, int y2)
 {
-		if((int)sqrt((pow(((int)o.pX - pl.positionX),2)) + (pow((((int)o.pY) - pl.positionY),2))) < 1)
+	return sqrt(pow(x1 - x2,2) + pow(y1 - y2, 2));
+
+}
+bool c_w_fo (Body *pl, Fall &o, bool &go)
+{
+	if(distance(o.pX, pl->positionX, o.pY, pl->positionY) < 55)
 	{
 		cout << "collision" << endl;
 		go = true;
@@ -230,4 +226,22 @@ bool c_w_fo(Body &pl, Fall &o, bool &go)
 		return false;
 }
 
+void placeCoin (Coins &co)
+{
+	co.pcX = 50;
+	co.pcY = 20;
+}
+/*
+void score(Body *p, Coins &c, int sc, int x, int y)
+{
+	if((int)sqrt((pow(((int)c->posX - p->positionX),2)) + (pow((((int)c->posY) - p->positionY),2))) < 1)
+	{
+		sc++;
 
+		Rect r;
+		r.bot = y - 100;
+		r.left = x + 280;
+		r.center = 1;
+		ggprint8b(&r, 40, 0x00ffff44, "SCORE: ", sc);
+	}
+}*/
