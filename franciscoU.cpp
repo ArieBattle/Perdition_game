@@ -136,10 +136,10 @@ int barrierCollision(Body *p)
             return p->positionX;
         }
         if (p->positionX < 0) {
-            return p->positionX = 20;
+            return p->positionX = 10;
         }
-        if (p->positionX > 1500) {
-            return p->positionX = 1480;
+        if (p->positionX > 1600) {
+            return p->positionX = 1590;
         }
         
     }return 0;
