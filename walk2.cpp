@@ -984,7 +984,7 @@ int checkKeys(XEvent *e)
 	(void)shift;
 	switch (key) {
 		case XK_s:
-			screenCapture();
+			//screenCapture();
 			push_start = true;
 			music();
 			break;
