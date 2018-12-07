@@ -129,17 +129,21 @@ void parachute(Body *p, GLuint texid)
     }
 }
 
+//screen size 1600x1300
 int barrierCollision(Body *p)
 {
     if (p->positionX != 0) {
         if (p->positionX > 0 && p->positionX <1600) {
             return p->positionX;
         }
-        if (p->positionX < 0) {
-            return p->positionX = 10;
+		//if character goes past 20 pixels, 
+		//push back to 30 pixels(front of bricks)
+        if (p->positionX < 20) {
+            return p->positionX = 30;
         }
-        if (p->positionX > 1600) {
-            return p->positionX = 1590;
+        //if character goes past 1580 pixels, push back to 1570 pixels
+        if (p->positionX > 1580) {
+            return p->positionX = 1570;
         }
         
     }return 0;
